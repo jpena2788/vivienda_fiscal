@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- REPORTE PDF -->
+    <record id="action_historial_vivienda" model="ir.actions.report">
+        <field name="name">Certificación Histórica Vivienda</field>
+        <field name="model">vf.vivienda.asignacion</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">vivienda_fiscal.reporte_historial_vivienda_template</field>
+        <field name="report_file">vivienda_fiscal.reporte_historial_vivienda_template</field>
+        <field name="paperformat_id" ref="hr.paperformat_hr_employee_badge" />
+        <field name="print_report_name">'Badge - %s' % (object.name).replace('/', '')</field>
+        <field name="binding_model_id" ref="model_vf_vivienda_asignacion" />
+        <field name="binding_type">report</field>
+    </record>
+
+    <template id="reporte_historial_vivienda_template">
+
+        <t t-call="web.external_layout">
+
+            <main>
+
+                <t t-foreach="docs" t-as="doc">
+
+                    <div class="page">
+
+                        <h2 style="text-align:center;">
+                            REPORTE DE TIEMPO DE USO DE VIVIENDA FISCAL
+                        </h2>
+
+                        <br />
+
+                        <p>
+                            <strong>Nombre:</strong>
+                            <span t-esc="doc.empleado_id.name" />
+                        </p>
+
+                        <p>
+                            <strong>Cédula:</strong>
+                            <span t-esc="doc.empleado_id.identification_id" />
+                        </p>
+
+                        <p>
+                            <strong>Grado:</strong>
+                            <span  />
+                        </p>
+
+                        <br />
+
+                        <h3>Historial de Viviendas</h3>
+
+                        <table class="table table-sm table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Inmueble</th>
+                                    <th>Tipo</th>
+                                    <th>Fecha Inicio</th>
+                                    <th>Fecha Fin</th>
+                                    <th>Meses</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                <t t-set="total_meses" t-value="0" />
+
+                                <t t-foreach="docs" t-as="a">
+
+                                    <tr>
+
+                                        <td>
+                                            <span t-esc="a.inmueble_id.name" />
+                                        </td>
+
+                                        <td>
+                                            <span t-esc="a.inmueble_id.tipo_inmueble" />
+                                        </td>
+
+                                        <td>
+                                            <span t-esc="a.fecha_inicio" />
+                                        </td>
+
+                                        <td>
+                                            <span t-esc="a.fecha_fin or 'ACTUAL'" />
+                                        </td>
+
+                                        <td>
+                                            <span t-esc="a.meses_uso" />
+                                        </td>
+
+                                    </tr>
+
+                                </t>
+
+                            </tbody>
+
+                        </table>
+
+                        <br />
+
+                        <p>
+
+                            <strong>Total de tiempo de uso:</strong>
+
+                            <t t-set="total_meses" t-value="sum(a.meses_uso for a in doc.asignaciones)" />
+
+                            <span t-esc="total_meses" /> meses
+
+                        </p>
+
+                        <br />
+                        <br />
+
+                        <p style="text-align:right;">
+                            Fecha del reporte:
+                            <span t-esc="doc.fecha_reporte" />
+                        </p>
+
+                    </div>
+
+                </t>
+
+            </main>
+
+        </t>
+
+    </template>
+    
+   
+            
+</odoo>

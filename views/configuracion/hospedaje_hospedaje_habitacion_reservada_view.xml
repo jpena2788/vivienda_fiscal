@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_hospedaje_numero_habitacion_reservada_tree">
+            <field name="name">hospedaje.numero_habitacion_reservada</field>
+            <field name="model">hospedaje.numero_habitacion_reservada</field>
+            <field name="arch" type="xml">
+                <list create="0">
+                    <field name="numero_habitacion_reservada"/>                                   
+                </list>
+            </field>
+        </record>
+
+        <record id="view_hospedaje_numero_habitacion_reservada_form" model="ir.ui.view">
+            <field name="name">hospedaje.numero_habitacion_reservada</field>
+            <field name="model">hospedaje.numero_habitacion_reservada</field>
+            <field name="arch" type="xml">
+                <form string="NUEVO" duplicate="0" create="0">
+                    <sheet>
+                        <group>
+                            <group >
+                                <field name="numero_habitacion_reservada" />
+                            </group>
+                            <group >                                                        
+                            </group>
+                        </group>
+                        <div class="oe_chatter">
+                            <field name="message_ids" widget="mail_thread" />
+                        </div>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        
+        <record model="ir.actions.act_window" id="action_hospedaje_numero_habitacion_reservada">
+            <field name="name">NUMERO DE HABITACIONES RESERVADAS</field>
+            <field name="res_model">hospedaje.numero_habitacion_reservada</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <menuitem name="Número de habitaciones reservadas" id="menu_action_hospedaje_numero_habitacion_reservada" parent="hospedaje_menu_configuracion_parametro" action="action_hospedaje_numero_habitacion_reservada" sequence="40" />
+
+    </data>
+</odoo>

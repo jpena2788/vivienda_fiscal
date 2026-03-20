@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_hospedaje_tipo_huesped_tree">
+            <field name="name">hospedaje.tipo_huesped</field>
+            <field name="model">hospedaje.tipo_huesped</field>
+            <field name="arch" type="xml">
+                <list>
+                    <field name="name" />
+                    <field name="descripcion" />
+                </list>
+            </field>
+        </record>
+
+        <record id="view_hospedaje_tipo_huesped_form" model="ir.ui.view">
+            <field name="name">hospedaje.tipo_huesped</field>
+            <field name="model">hospedaje.tipo_huesped</field>
+            <field name="arch" type="xml">
+                <form string="NUEVO" duplicate="0">
+                    <sheet>
+                        <group>
+                            <group colspan="2">
+                                <field name="name" />
+                                <field name="descripcion" />
+                                <field name="active" widget="boolean_toggle" />
+                            </group>                                                      
+                        </group>
+                        <div class="oe_chatter">
+                            <field name="message_ids" widget="mail_thread" />
+                        </div>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_hospedaje_tipo_huesped_presentacion_form" model="ir.ui.view">
+            <field name="name">hospedaje.tipo_huesped</field>
+            <field name="model">hospedaje.tipo_huesped</field>
+            <field name="arch" type="xml">
+                <form string="NUEVO">
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="name" readonly="1" />
+                            </group>
+                            <group>
+                                <field name="descripcion" readonly="1" />
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_hospedaje_tipo_huesped_search" model="ir.ui.view">
+            <field name="name">hospedaje.tipo_huesped</field>
+            <field name="model">hospedaje.tipo_huesped</field>
+            <field name="arch" type="xml">
+                <search string="">
+                    <field name="name" />
+                    <field name="descripcion" />                   
+                    <group>
+                        <filter string="Inactivo" name="inactive" domain="[('active','=',False)]" />
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="action_hospedaje_tipo_huesped">
+            <field name="name">TIPO DE HUESPED</field>
+            <field name="res_model">hospedaje.tipo_huesped</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <menuitem name="Tipo de huesped" id="menu_action_hospedaje_tipo_huesped" parent="hospedaje_menu_configuracion" action="action_hospedaje_tipo_huesped" sequence="30" />
+
+    </data>
+</odoo>

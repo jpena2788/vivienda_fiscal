@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_vf_entorno_list" model="ir.ui.view">
+        <field name="name">vf.vivienda.entorno.list</field>
+        <field name="model">vf.vivienda.entorno</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="empleado_id" />
+                <field name="name" />
+                <field name="relation" />
+                <field name="asignacion_vivienda_id" />
+            </list>
+        </field>
+    </record>
+
+    <record id="view_vf_entorno_form" model="ir.ui.view">
+        <field name="name">vf.vivienda.entorno.form</field>
+        <field name="model">vf.vivienda.entorno</field>
+        <field name="arch" type="xml">
+            <form string="Entorno Familiar">
+                <sheet>
+                    <group>
+                        <field name="empleado_id" />
+                        <field name="name" />
+                        <field name="relation" />
+                        <field name="asignacion_vivienda_id" />
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_vf_entorno" model="ir.actions.act_window">
+        <field name="name">Entorno Familiar</field>
+        <field name="res_model">vf.vivienda.entorno</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

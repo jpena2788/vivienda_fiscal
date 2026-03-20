@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Categoría para agrupar privilegios de Vivienda Fiscal -->
+    <record id="module_category_vivienda_fiscal" model="ir.module.category">
+        <field name="name">Vivienda Fiscal</field>
+        <field name="sequence">50</field>
+    </record>
+    <record id="privilege_vivienda_fiscal" model="res.groups.privilege">
+        <field name="name">Vivienda Fiscal</field>
+        <field name="category_id" ref="module_category_vivienda_fiscal"/>
+        <field name="sequence">3</field>
+    </record>
+    <!-- GRUPO LECTOR -->
+    <record model="res.groups" id="group_vf_reader">
+        <field name="name">Consulta</field>
+        <field name="sequence">10</field>
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+        <field name="privilege_id" ref="privilege_vivienda_fiscal"/>
+    </record>
+    <!-- GRUPO OPERADOR -->
+    <record id="group_vf_operator" model="res.groups">
+        <field name="name">Operador</field>
+        <field name="sequence">20</field>
+        <field name="implied_ids" eval="[(4, ref('group_vf_reader'))]"/>
+        <field name="privilege_id" ref="privilege_vivienda_fiscal"/>
+    </record>
+    <!-- GRUPO ADMIN -->
+    <record id="group_vf_admin" model="res.groups">
+        <field name="name">Administrador</field>
+        <field name="privilege_id" ref="privilege_vivienda_fiscal"/>
+        <field name="sequence">20</field>
+        <field name="implied_ids" eval="[(4, ref('group_vf_operator'))]"/>
+    </record>
+    <record model="ir.rule" id="rule_vf_all_access">
+        <field name="name">Acceso completo Inmueble</field>
+        <field name="model_id" ref="model_vivienda_inmueble"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('group_vf_admin'))]"/>
+        <field name="perm_read">1</field>
+        <field name="perm_write">1</field>
+        <field name="perm_create">1</field>
+        <field name="perm_unlink">1</field>
+    </record>
+    <record model="ir.rule" id="rule_vf_operator_access">
+        <field name="name">Operador vivienda fiscal</field>
+        <field name="model_id" ref="model_vivienda_inmueble"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('group_vf_operator'))]"/>
+        <field name="perm_read">1</field>
+        <field name="perm_write">1</field>
+        <field name="perm_create">1</field>
+        <field name="perm_unlink">0</field>
+    </record>
+</odoo>

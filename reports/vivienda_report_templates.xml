@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ============================= -->
+    <!-- REPORTE ENTREGA DE VIVIENDA -->
+    <!-- ============================= -->
+
+    <template id="report_vf_vivienda_entrega_template">
+        <t t-call="web.external_layout">
+            <t t-foreach="docs" t-as="o">
+                <div class="page">
+                    <h2>Certificado de Entrega de Vivienda</h2>
+
+                    <p>
+                        <strong>Asignación:</strong> 
+                        <span t-field="o.name" />
+                    </p>
+                    <p>
+                        <strong>Vivienda:</strong> 
+                        <span t-field="o.vivienda_id.name" />
+                    </p>
+                    <p>
+                        <strong>Militar:</strong> 
+                        <span t-field="o.militar_id.name" />
+                    </p>
+                    <p>
+                        <strong>Fecha inicio:</strong> 
+                        <span t-field="o.fecha_inicio" />
+                    </p>
+                    <p>
+                        <strong>Fecha fin:</strong> 
+                        <span t-field="o.fecha_fin" /> 
+                        <t t-if="not o.fecha_fin">N/A</t>
+                    </p>
+                    <p>
+                        <strong>Estado:</strong> 
+                        <span t-field="o.estado" />
+                    </p>
+
+                </div>
+            </t>
+        </t>
+    </template>
+
+
+    <!-- ============================= -->
+    <!-- REPORTE LIBERACION VIVIENDA -->
+    <!-- ============================= -->
+
+    <template id="report_vf_vivienda_liberacion_template">
+        <t t-call="web.external_layout">
+            <t t-foreach="docs" t-as="o">
+                <div class="page">
+
+                    <h2>Certificado de Liberación de Vivienda</h2>
+
+                    <p>
+                        <strong>Asignación:</strong> 
+                        <span t-field="o.name" />
+                    </p>
+                    <p>
+                        <strong>Vivienda:</strong> 
+                        <span t-field="o.vivienda_id.name" />
+                    </p>
+                    <p>
+                        <strong>Militar:</strong> 
+                        <span t-field="o.militar_id.name" />
+                    </p>
+                    <p>
+                        <strong>Fecha inicio:</strong> 
+                        <span t-field="o.fecha_inicio" />
+                    </p>
+                    <p>
+                        <strong>Fecha fin:</strong> 
+                        <span t-field="o.fecha_fin" />
+                        <t t-if="not o.fecha_fin">N/A</t>
+                    </p>
+                    <p>
+                        <strong>Estado:</strong> 
+                        <span t-field="o.estado" />
+                    </p>
+
+                    <p>
+                        Este documento certifica la liberación de la vivienda asignada.
+                    </p>
+
+                </div>
+            </t>
+        </t>
+    </template>
+
+
+    <!-- ============================= -->
+    <!-- REPORTE OCUPACION ALOJAMIENTO -->
+    <!-- ============================= -->
+
+    <template id="report_vf_ocupacion_template">
+        <t t-call="web.external_layout">
+            <t t-foreach="docs" t-as="o">
+                <div class="page">
+
+                    <h2>Reporte de Ocupación de Alojamientos</h2>
+
+                    <p>
+                        <strong>Alojamiento:</strong> 
+                        <span t-field="o.name" />
+                    </p>
+                    <p>
+                        <strong>Habitaciones:</strong> 
+                        <t t-esc="len(o.habitacion_ids)" />
+                    </p>
+                    <p>
+                        <strong>Camas ocupadas:</strong> 
+                        <span t-field="o.occupied_beds" />
+                    </p>
+                    <p>
+                        <strong>Camas disponibles:</strong> 
+                        <span t-field="o.available_beds" />
+                    </p>
+
+                </div>
+            </t>
+        </t>
+    </template>
+
+
+    <!-- ============================= -->
+    <!-- REPORTE TIEMPO DE SERVICIO -->
+    <!-- ============================= -->
+
+    <template id="reporte_tiempo_vivienda">
+
+        <t t-call="web.html_container">
+
+            <t t-foreach="docs" t-as="o">
+
+                <div class="page">
+
+                    <h2>Histórico de uso de vivienda</h2>
+
+                    <p>Militar: 
+                        <t t-esc="o.empleado_id.name" />
+                    </p>
+
+                    <p>Vivienda: 
+                        <t t-esc="o.inmueble_id.name" />
+                    </p>
+
+                    <p>Fecha inicio: 
+                        <t t-esc="o.fecha_inicio" />
+                    </p>
+
+                    <p>Fecha fin: 
+                        <t t-esc="o.fecha_fin or 'Actual'" />
+                    </p>
+
+                    <p>Días de uso: 
+                        <t t-esc="o.dias_uso" />
+                    </p>
+
+                </div>
+
+            </t>
+
+        </t>
+
+    </template>
+
+</odoo>

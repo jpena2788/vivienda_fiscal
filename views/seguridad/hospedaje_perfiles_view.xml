@@ -1,0 +1,69 @@
+<odoo>
+    <data>
+        <!-- TREE -->
+        <record id="view_hospedaje_perfiles_tree" model="ir.ui.view">
+            <field name="name">res.users.tree.hospedaje</field>
+            <field name="model">res.users</field>
+            <field name="arch" type="xml">
+                <list string="Usuarios" create="false" delete="false">
+                    <field name="name"/>
+                    <field name="login"/>
+                    <field name="company_id"/>
+                </list>
+            </field>
+        </record>
+        <!-- FORM HEREDADO -->
+        <record id="view_hospedaje_perfiles_form" model="ir.ui.view">
+            <field name="name">res.users.form.hospedaje</field>
+            <field name="model">res.users</field>
+            <field name="inherit_id" ref="base.view_users_form"/>
+            <field name="arch" type="xml">
+                <!-- SOLO agregamos una pestaña -->
+                <xpath expr="//notebook" position="inside">
+                    <page string="PERFILES">
+                        <group>
+                            <div class="o_form_label">
+                                Los permisos se gestionan desde la pestaña Accesos del usuario.
+                            </div>
+                        </group>
+                    </page>
+                </xpath>
+            </field>
+        </record>
+        <!-- SEARCH -->
+        <!-- <record id="view_hospedaje_perfiles_search" model="ir.ui.view">
+            <field name="name">res.users.search.hospedaje</field>
+            <field name="model">res.users</field>
+            <field name="inherit_id" ref="base.view_users_search"/>
+            <field name="arch" type="xml">
+                <xpath expr="//search" position="inside">
+                    <field name="login"/>
+                    <field name="name"/>
+                    <field name="company_id"/>
+                    <filter name="inactive"
+                string="Inactivo"
+                domain="[('active','=',False)]"/>
+                    <group expand="0" string="Agrupar">
+                        <filter name="reparto"
+                    string="Agrupar por reparto"
+                    context="{'group_by':'company_id'}"/>
+                    </group>
+                </xpath>
+            </field>
+        </record> -->
+        <!-- ACTION -->
+        <record id="action_hospedaje_perfiles" model="ir.actions.act_window">
+            <field name="name">Perfiles</field>
+            <field name="res_model">res.users</field>
+            <field name="view_mode">list,form</field>
+            <field name="view_id" ref="view_hospedaje_perfiles_tree"/>
+            <!-- <field name="search_view_id" ref="view_hospedaje_perfiles_search"/> -->
+        </record>
+        <!-- MENU -->
+        <menuitem name="Perfiles"
+              id="menu_action_hospedaje_perfiles"
+              parent="menu_hospedaje_seguridad"
+              action="action_hospedaje_perfiles"
+              sequence="20"/>
+    </data>
+</odoo>

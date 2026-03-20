@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_vf_alojamiento_naval_list" model="ir.ui.view">
+        <field name="name">vf.alojamiento.naval.list</field>
+        <field name="model">vf.alojamiento.naval</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="address"/>
+                <field name="active"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_vf_alojamiento_naval_form" model="ir.ui.view">
+        <field name="name">vf.alojamiento.naval.form</field>
+        <field name="model">vf.alojamiento.naval</field>
+        <field name="arch" type="xml">
+            <form string="Alojamiento Naval">
+                <sheet>
+                    <group>
+                        <field name="name" readonly="1"/>
+                        <field name="address"/>
+                        <field name="active"/>
+                    </group>
+                    <group>
+                        <field name="habitacion_ids">
+                            <list editable="bottom">
+                                <field name="name"/>
+                                <field name="floor"/>
+                            </list>
+                        </field>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_vf_alojamiento_habitacion_list" model="ir.ui.view">
+        <field name="name">vf.alojamiento.habitacion.list</field>
+        <field name="model">vf.alojamiento.habitacion</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="alojamiento_id"/>
+                <field name="floor"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_vf_alojamiento_habitacion_form" model="ir.ui.view">
+        <field name="name">vf.alojamiento.habitacion.form</field>
+        <field name="model">vf.alojamiento.habitacion</field>
+        <field name="arch" type="xml">
+            <form string="Habitación">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="floor"/>
+                        <field name="alojamiento_id"/>
+                    </group>
+                    <group>
+                        <field name="cama_ids">
+                            <list editable="bottom">
+                                <field name="name"/>
+                                <field name="state"/>
+                            </list>
+                        </field>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_vf_alojamiento_cama_list" model="ir.ui.view">
+        <field name="name">vf.alojamiento.cama.list</field>
+        <field name="model">vf.alojamiento.cama</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="habitacion_id"/>
+                <field name="state"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_vf_alojamiento_cama_form" model="ir.ui.view">
+        <field name="name">vf.alojamiento.cama.form</field>
+        <field name="model">vf.alojamiento.cama</field>
+        <field name="arch" type="xml">
+            <form string="Cama">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="habitacion_id"/>
+                        <field name="state"/>
+                    </group>
+                    <group>
+                        <field name="historial_asignaciones_ids">
+                            <list>
+                                <field name="name"/>
+                                <field name="militar_id"/>
+                                <field name="fecha_inicio"/>
+                                <field name="fecha_fin"/>
+                                <field name="estado"/>
+                            </list>
+                        </field>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_vf_alojamiento_naval" model="ir.actions.act_window">
+        <field name="name">Alojamientos</field>
+        <field name="res_model">vf.alojamiento.naval</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="action_vf_alojamiento_habitacion" model="ir.actions.act_window">
+        <field name="name">Habitaciones</field>
+        <field name="res_model">vf.alojamiento.habitacion</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="view_vf_alojamiento_cama_search" model="ir.ui.view">
+        <field name="name">vf.alojamiento.cama.search</field>
+        <field name="model">vf.alojamiento.cama</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="habitacion_id"/>
+                <field name="state"/>
+                <filter name="available" string="Disponibles" domain="[('state', '=', 'available')]"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_vf_alojamiento_cama" model="ir.actions.act_window">
+        <field name="name">Camas</field>
+        <field name="res_model">vf.alojamiento.cama</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

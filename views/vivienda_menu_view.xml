@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_vf_root" name="Vivienda Fiscal" sequence="20" />
+    <menuitem id="menu_vf_root_vf" name="Vivienda" sequence="4" parent="menu_vf_root" />
+    <menuitem id="menu_vf_root_sol" name="Solicitudes" parent="menu_vf_root" groups="vivienda_fiscal.group_vf_operator,vivienda_fiscal.group_vf_admin" sequence="2"/>
+    <menuitem id="menu_vf_root_reg" name="Registro" parent="menu_vf_root" groups="vivienda_fiscal.group_vf_operator,vivienda_fiscal.group_vf_admin" sequence="10"/>
+        
+    <!-- Menu Configuración            -->
+    <menuitem id="menu_vf_root_conf" name="Configuración" parent="menu_vf_root" groups="vivienda_fiscal.group_vf_admin" sequence="20"/>
+    <!-- <menuitem id="menu_vf_asignaciones"
+                  name="Asignación de Vivienda Fiscal"
+                  parent="menu_vf_root_vf"
+                  sequence="2"
+                  action="action_vf_vivienda_asignacion" />
+    <menuitem id="menu_vf_entorno"
+                  name="Entorno Familiar"
+                  parent="menu_vf_root_vf"
+                  sequence="3"
+                  action="action_vf_entorno" />
+    <menuitem id="menu_vf_root_reports" name="Reportes" sequence="5" parent="menu_vf_root" />
+    <menuitem id="menu_vf_reportes"
+                  name="Reportes"
+                  parent="menu_vf_root_reports"
+                  sequence="3"
+                  action="act_vf_dashboard" />
+    <menuitem id="menu_historial_vivienda" 
+                name="Certificación Histórica" 
+                parent="menu_vf_root_reports" 
+                action="action_historial_vivienda_wizard" /> -->
+    
+  
+
+   
+   
+    <!-- <menuitem id="menu_vf_alojamiento_root" name="Alojamiento Naval" sequence="6"/>
+    <menuitem id="menu_vf_alojamientos" name="Alojamientos" parent="menu_vf_alojamiento_root" sequence="1" action="action_vf_alojamiento_naval"/>
+    <menuitem id="menu_vf_habitaciones" name="Habitaciones" parent="menu_vf_alojamiento_root" sequence="2" action="action_vf_alojamiento_habitacion"/>
+    <menuitem id="menu_vf_camas" name="Camas" parent="menu_vf_alojamiento_root" sequence="3" action="action_vf_alojamiento_cama"/>
+    <menuitem id="menu_vf_ocupacion" name="Ocupación" parent="menu_vf_alojamiento_root" sequence="4" action="action_vf_alojamiento_asignacion"/>
+
+    <menuitem id="menu_vf_gestion_root" name="Gestión" parent="base.menu_custom" sequence="7"/>
+    <menuitem id="menu_vf_mantenimiento" name="Mantenimiento" parent="menu_vf_gestion_root" sequence="1" action="action_vf_mantenimiento"/>
+    <menuitem id="menu_vf_pagos" name="Pagos" parent="menu_vf_gestion_root" sequence="2" action="action_vf_pagos"/>-->
+</odoo>

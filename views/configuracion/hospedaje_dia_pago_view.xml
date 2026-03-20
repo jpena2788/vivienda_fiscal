@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_hospedaje_dias_anticipacion_tree">
+            <field name="name">hospedaje.dias_anticipacion</field>
+            <field name="model">hospedaje.dias_anticipacion</field>
+            <field name="arch" type="xml">
+                <list create="0">
+                    <field name="dia_anticipacion"/>     
+                     <field name="dia_anticipacion_maximo"/>                
+                </list>
+            </field>
+        </record>
+
+        <record id="view_hospedaje_dias_anticipacion_form" model="ir.ui.view">
+            <field name="name">hospedaje.dias_anticipacion</field>
+            <field name="model">hospedaje.dias_anticipacion</field>
+            <field name="arch" type="xml">
+                <form string="NUEVO" duplicate="0" create="0">
+                    <sheet>
+                        <group>
+                            <group >
+                                <field name="dia_anticipacion" />
+                            </group>
+                            <group >  
+                            <field name="dia_anticipacion_maximo" />                              
+                            </group>
+                        </group>
+                        <div class="oe_chatter">
+                            <field name="message_ids" widget="mail_thread" />
+                        </div>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        
+        <record model="ir.actions.act_window" id="action_hospedaje_dias_anticipacion">
+            <field name="name">DÍA DE ANTICIPACIÓN</field>
+            <field name="res_model">hospedaje.dias_anticipacion</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <menuitem name="Días de anticipación" id="menu_action_hospedaje_dias_anticipacion" parent="hospedaje_menu_configuracion_parametro" action="action_hospedaje_dias_anticipacion" sequence="20" />
+
+    </data>
+</odoo>

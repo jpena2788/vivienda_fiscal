@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+
+        <record id="view_hospedaje_solicitud_tipo_habitacion_lectura_form" model="ir.ui.view">
+            <field name="name">hospedaje.solicitud_tipo_habitacion</field>
+            <field name="model">hospedaje.solicitud_tipo_habitacion</field>
+            <field name="arch" type="xml">
+                <form string="NUEVO" duplicate="0">
+                    <sheet>
+                        <group>
+                            <group >
+                                <field name="tipo_habitacion_id_domain" invisible="1" />
+                                <field name="tipo_habitacion_id" domain="tipo_habitacion_id_domain" readonly="1" options="{'no_create': True, 'no_open': True, 'no_create_edit': True}" />
+                            </group>
+                            <group colspan="2">
+                                <field name="habitacion_ids" widget="many2many_tags" readonly="1" />
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+
+
+        <!-- <record id="action_hospedaje_solicitud_tipo_habitacion_windows" model="ir.actions.server">
+            <field name="name">SOLICITUD DE HOSPEDAJE</field>
+            <field name="model_id" ref="model_hospedaje_solicitud_tipo_habitacion" />
+            <field name="binding_model_id" ref="model_hospedaje_solicitud" />
+            <field name="state">code</field>
+            <field name="code">action = env['hospedaje.solicitud'].ver_solicitudes()</field>
+        </record> -->
+
+    </data>
+</odoo>

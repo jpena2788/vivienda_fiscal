@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+   
+    <record id="seq_vf_vivienda_asignacion" model="ir.sequence">
+        <field name="name">Asignación Vivienda</field>
+        <field name="code">vf.vivienda.asignacion</field>
+        <field name="padding">6</field>
+        <field name="prefix">VAS-%(year)s-</field>
+    </record>
+
+   
+</odoo>

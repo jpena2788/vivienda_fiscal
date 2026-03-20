@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<template xml:space="preserve">
+  <t t-extend="ListView.buttons">
+    <t t-jquery="button.o_list_button_add" t-operation="before">
+      <button t-if="widget.modelName == 'hr.organico.syna'" class="btn btn-success oe_my_own_button" type="button" accesskey="f">Nuevo Registro</button>
+        
+    </t>
+  </t>
+
+  <!-- <t t-name="th_gestion_organico.dashboard.syna.button'">
+    <button class="btn btn-primary btn-time-off" type="button">
+      <t t-esc="time_off" />
+    </button>
+    <button class="btn btn-secondary btn-allocation" type="button">
+      <t t-esc="request" />
+    </button>
+  </t> -->
+</template>
