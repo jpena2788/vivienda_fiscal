@@ -6,14 +6,15 @@
             <field name="model">vivienda.inmueble_asignado</field>
             <field name="arch" type="xml">
                 <list>
+                    <field name="condicion" optional="hide"/>
                     <field name="reparto_solicitud_empleado" />
                     <field name="personal_id" />
                     <field name="reparto_id" />
                     <field name="inmueble_id" />
                     <field name="state" widget="badge" decoration-bf="state == 'draft'" decoration-primary="state == 'por_aprobar'" decoration-success="state == 'aprobado'" decoration-warning="state == 'llegada' or state == 'fin'" decoration-danger="state == 'anular' or state == 'baja'"/>
-                    <button name="action_llegada" string="Recepción" type="object" icon="fa-thumbs-up" class="btn-primary" invisible="state != 'aprobado'"/>
-                    <button name="action_salida" string="Salida" type="object" icon="fa-times-circle" class="btn-warning"  invisible="state != 'llegada'"/>
-                    <button name="action_archivar" string="Archivar" type="object" icon="fa-archive" class="btn-secondary" invisible="state not in ['draft','anular','fin']"/>
+                    <button name="action_estado_por_anular" string="Anular" type="object" icon="fa-ban" class="btn-danger" invisible="state not in ['draft','por_aprobar']"/>
+                    <button name="action_salida" string="Finalizar" type="object" icon="fa-times-circle" class="btn-warning" invisible="condicion != 'temporal' or state != 'aprobado'"/>
+                    <button name="action_archivar" string="Archivar" type="object" icon="fa-archive" class="btn-secondary" invisible="(condicion == 'permanente' and state not in ['anular','baja']) or (condicion == 'temporal' and state not in ['anular','fin'])"/>
                 </list>
             </field>
         </record>
@@ -23,10 +24,12 @@
             <field name="arch" type="xml">
                 <form string="NUEVO" duplicate="0">
                     <header>
-                        <field name="state" widget="statusbar"/>
-                        <button name="asignacion_solicitud" string="Asignar" type="object" icon="fa-check" class="btn-warning" groups="vivienda_fiscal.group_vivienda_encargado_solicitud"/>
-                        <button name="aprobar_solicitud" string="Aprobar" type="object" icon="fa-check" class="btn-success" invisible="state != 'pagado'"/>
-                        <button name="action_abrir_wizard_baja" string="Dar de Baja" type="object" icon="fa-user-times" class="btn-danger" invisible="state not in ['asignado','pagado','aprobado','llegada']"/>
+                        <field name="state" widget="statusbar" statusbar_visible="draft,por_aprobar,anular,asignado,baja,archivar" invisible="condicion != 'permanente'"/>
+                        <field name="state" widget="statusbar" statusbar_visible="draft,por_aprobar,anular,aprobado,fin,archivar" invisible="condicion != 'temporal'"/>
+                        <button name="action_estado_por_anular" string="Anular" type="object" icon="fa-ban" class="btn-secondary" invisible="state not in ['draft','por_aprobar']"/>
+                        <button name="asignacion_solicitud" string="Asignar" type="object" icon="fa-check" class="btn-warning" groups="vivienda_fiscal.group_vivienda_encargado_solicitud" invisible="condicion != 'permanente' or state != 'por_aprobar'"/>
+                        <button name="aprobar_solicitud" string="Aprobar" type="object" icon="fa-check" class="btn-success" invisible="condicion != 'temporal' or state != 'por_aprobar'"/>
+                        <button name="action_abrir_wizard_baja" string="Dar de Baja" type="object" icon="fa-user-times" class="btn-danger" invisible="condicion != 'permanente' or state != 'asignado'"/>
                     </header>
                     <sheet>
                         <!-- Bloque superior en 2 columnas -->
@@ -109,7 +112,7 @@
                                     </h1>
                                 </group>
                             </page>
-                            <page string="Selección de ambiente operador" invisible="state == 'draft'">
+                            <page string="Selección de ambiente operador" invisible="state == 'draft' or condicion == 'permanente'">
                                 <group colspan="2" string="Ambientes">
                                     <field name="ambiente_operador_ids" nolabel="1" context="{'default_inmueble_id': inmueble_id,}">
                                         <list limit="5" editable="top" create="0" delete="0">

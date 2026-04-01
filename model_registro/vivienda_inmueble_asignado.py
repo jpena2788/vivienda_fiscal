@@ -328,11 +328,19 @@ class InmuebleAsignado(models.Model):
         return True
 
     def aprobar_solicitud(self):  
+        if self.condicion != 'temporal':
+            raise ValidationError('La accion Aprobar aplica solo para inmuebles temporales.')
+        if self.state != 'por_aprobar':
+            raise ValidationError('Solo se puede aprobar una solicitud en estado Por aprobar.')
         self.band_cobrar = True
         self.action_estado_aprobado()
         
     
     def asignacion_solicitud(self):  
+        if self.condicion != 'permanente':
+            raise ValidationError('La accion Asignar aplica solo para inmuebles permanentes.')
+        if self.state != 'por_aprobar':
+            raise ValidationError('Solo se puede asignar una solicitud en estado Por aprobar.')
         _cantidad = 0
         for ambiente in self.ambiente_ids:
             _cantidad += ambiente.cantidad
@@ -374,6 +382,10 @@ class InmuebleAsignado(models.Model):
 
     def action_abrir_wizard_baja(self):
         self.ensure_one()
+        if self.condicion != 'permanente':
+            raise ValidationError('La baja manual aplica solo para asignaciones de inmuebles permanentes.')
+        if self.state != 'asignado':
+            raise ValidationError('Solo se puede dar de baja una asignacion en estado Asignado.')
         return {
             'type': 'ir.actions.act_window',
             'name': 'Dar de Baja',
@@ -387,6 +399,8 @@ class InmuebleAsignado(models.Model):
 
     def action_estado_baja(self, fecha_baja=None, motivo_baja=None):
         for record in self:
+            if record.condicion != 'permanente':
+                raise ValidationError('La baja manual aplica solo para asignaciones de inmuebles permanentes.')
             fecha = fecha_baja or fields.Date.context_today(record)
             valores = {
                 'state': 'baja',
@@ -405,6 +419,10 @@ class InmuebleAsignado(models.Model):
         return True
     
     def action_salida(self):  
+        if self.condicion != 'temporal':
+            raise ValidationError('Finalizar aplica solo para asignaciones de inmuebles temporales.')
+        if self.state != 'aprobado':
+            raise ValidationError('Solo se puede finalizar cuando la asignacion esta Aprobada.')
         self.ambiente_ids.ambiente_ids.state = 'limpieza'
         self.write({'state': 'fin', 'fecha_salida': time.strftime('%Y-%m-%d %H:%M:%S')})
         return True   
@@ -415,8 +433,11 @@ class InmuebleAsignado(models.Model):
     
     
     def action_estado_por_anular(self):
-        self.ambiente_ids.ambiente_ids.state = 'libre'
-        self.write({'state': 'anular'})
+        for record in self:
+            if record.state not in ['draft', 'por_aprobar']:
+                raise ValidationError('Solo se puede anular antes de aprobar (Borrador o Por aprobar).')
+            record.ambiente_ids.ambiente_ids.state = 'libre'
+            record.write({'state': 'anular'})
         return True    
     
     # -------------------------
@@ -428,7 +449,7 @@ class InmuebleAsignado(models.Model):
             record.precio = sum(record.ambiente_ids.mapped('precio_total'))
            
     def _get_estados_bloqueantes(self):
-        return ['asignado', 'aprobado', 'pagado', 'llegada']
+        return ['por_aprobar', 'asignado', 'aprobado']
 
     @api.constrains('user_id', 'condicion', 'state', 'es_archivar')
     def _check_solicitud_pendiente_misma_condicion(self):

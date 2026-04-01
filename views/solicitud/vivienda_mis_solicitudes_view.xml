@@ -6,14 +6,15 @@
             <field name="model">vivienda.inmueble_asignado</field>
             <field name="arch" type="xml">
                 <list>
+                    <field name="condicion" optional="hide"/>
                     <field name="reparto_solicitud_empleado" />
                     <field name="personal_id" />
                     <field name="reparto_id" />
                     <field name="inmueble_id" />
                     <field name="state" widget="badge" decoration-bf="state == 'draft'" decoration-primary="state == 'por_aprobar'" decoration-success="state == 'aprobado'" decoration-warning="state == 'llegada' or state == 'fin'" decoration-danger="state == 'anular' or state == 'baja'"/>
-                    <button name="action_llegada" string="Recepción" type="object" icon="fa-thumbs-up" class="btn-primary" invisible="state != 'aprobado'"/>
-                    <button name="action_salida" string="Salida" type="object" icon="fa-times-circle" class="btn-warning"  invisible="state != 'llegada'"/>
-                    <button name="action_archivar" string="Archivar" type="object" icon="fa-archive" class="btn-secondary" invisible="state not in ['draft','anular','fin']"/>
+                    <button name="action_estado_por_anular" string="Anular" type="object" icon="fa-ban" class="btn-danger" invisible="state not in ['draft','por_aprobar']"/>
+                    <button name="action_salida" string="Finalizar" type="object" icon="fa-times-circle" class="btn-warning" invisible="condicion != 'temporal' or state != 'aprobado'"/>
+                    <button name="action_archivar" string="Archivar" type="object" icon="fa-archive" class="btn-secondary" invisible="(condicion == 'permanente' and state not in ['anular','baja']) or (condicion == 'temporal' and state not in ['anular','fin'])"/>
                 </list>
             </field>
         </record>
@@ -23,7 +24,9 @@
             <field name="arch" type="xml">
                 <form string="NUEVO" duplicate="0">
                     <header>
-                        <field name="state" widget="statusbar"/>
+                        <field name="state" widget="statusbar" statusbar_visible="draft,por_aprobar,anular,asignado,baja,archivar" invisible="condicion != 'permanente'"/>
+                        <field name="state" widget="statusbar" statusbar_visible="draft,por_aprobar,anular,aprobado,fin,archivar" invisible="condicion != 'temporal'"/>
+                        <button name="action_estado_por_anular" string="Anular" type="object" icon="fa-ban" class="btn-secondary" invisible="state not in ['draft','por_aprobar']"/>
                         <button name="solicitar_inmueble" invisible="state != 'draft'" string="Solicitar" type="object" icon="fa-check" class="oe_highlight"/>
                     </header>
                     <sheet>
