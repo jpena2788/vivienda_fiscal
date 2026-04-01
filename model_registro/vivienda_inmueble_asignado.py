@@ -17,7 +17,7 @@ class InmuebleAsignado(models.Model):
     _inherit = [ 'mail.thread', 'mail.activity.mixin']
     _rec_name = "inmueble_id"
     
-    seleccion_estado = [('draft', 'Borrador'), ('por_aprobar', 'Por aprobar'),('asignado', 'Asignado'),('pagado', 'Pagado'), ('aprobado', 'Aprobado'),('anular', 'Anulado'),('llegada', 'Llegada'),('fin', 'Finalizado'),('archivar','Archivar')]
+    seleccion_estado = [('draft', 'Borrador'), ('por_aprobar', 'Por aprobar'),('asignado', 'Asignado'),('pagado', 'Pagado'), ('aprobado', 'Aprobado'),('anular', 'Anulado'),('llegada', 'Llegada'),('baja', 'De Baja'),('fin', 'Finalizado'),('archivar','Archivar')]
     state = fields.Selection(seleccion_estado, 'Estado Solicitud de Asignación', readonly=True, default='draft', tracking=True)    
     inmueble_id = fields.Many2one(string='Inmueble', comodel_name='vivienda.inmueble', ondelete='restrict', tracking=True, required=True)       
     hora_entrada = fields.Float("Hora de entrada", readonly=True, help = "Campo de tipo fecha" )
@@ -74,6 +74,7 @@ class InmuebleAsignado(models.Model):
     fecha_fin = fields.Date(string='Fecha de salida' )  
     fecha_alta = fields.Date(string='Fecha de alta' )
     fecha_baja = fields.Date(string='Fecha de baja' )   
+    motivo_baja = fields.Text('Motivo de baja')
     motivo_rechazo = fields.Text('Motivo de anulación')    
     aceptacion_termino = fields.Boolean(string='aceptación terminos',)  
     dependiente_ids = fields.Many2many(string='Dependientes', comodel_name='hr.employee.hijos', relation='vivienda_solicitud_dependientes_rel', column1='solicitud_id', column2='dependiente_id', domain="[('employee_id','=',personal_id)]")
@@ -189,7 +190,7 @@ class InmuebleAsignado(models.Model):
         if user.has_group('vivienda_fiscal.group_vivienda_administrador'):
             _condicion = [(1,'=',1)]
         elif user.has_group('vivienda_fiscal.group_vivienda_encargado_solicitud'):
-            _condicion = [('reparto_id','=',self.env.user.company_id.id),('state','in',['asignado']),('es_archivar','=', False)]
+            _condicion = [('reparto_id','=',self.env.user.company_id.id)]
         diccionario= {
                         'name': ('Asignaciones de inmuebles'),        
                         'domain': _condicion,
@@ -369,6 +370,38 @@ class InmuebleAsignado(models.Model):
 
     def action_llegada(self): 
         self.write({'state': 'llegada', 'fecha_llegada': time.strftime('%Y-%m-%d %H:%M:%S')})
+        return True
+
+    def action_abrir_wizard_baja(self):
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'Dar de Baja',
+            'res_model': 'vivienda.baja.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {
+                'default_solicitud_id': self.id,
+            },
+        }
+
+    def action_estado_baja(self, fecha_baja=None, motivo_baja=None):
+        for record in self:
+            fecha = fecha_baja or fields.Date.context_today(record)
+            valores = {
+                'state': 'baja',
+                'fecha_baja': fecha,
+                'motivo_baja': motivo_baja or False,
+            }
+            if not record.fecha_salida:
+                valores['fecha_salida'] = fields.Datetime.now()
+            record.write(valores)
+
+            ambientes = record.ambiente_operador_ids.mapped('ambiente_ids')
+            if not ambientes:
+                ambientes = record.ambiente_ids.mapped('ambiente_ids')
+            if ambientes:
+                ambientes.write({'state': 'libre'})
         return True
     
     def action_salida(self):  

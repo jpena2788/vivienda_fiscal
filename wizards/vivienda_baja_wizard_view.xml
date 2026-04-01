@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_vivienda_baja_wizard_form" model="ir.ui.view">
+        <field name="name">vivienda.baja.wizard.form</field>
+        <field name="model">vivienda.baja.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Dar de Baja Asignacion">
+                <group>
+                    <field name="solicitud_id"/>
+                    <field name="fecha_baja"/>
+                    <field name="motivo_baja"/>
+                </group>
+                <footer>
+                    <button name="action_confirmar_baja" string="Confirmar Baja" type="object" class="btn-primary"/>
+                    <button string="Cancelar" special="cancel" class="btn-secondary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

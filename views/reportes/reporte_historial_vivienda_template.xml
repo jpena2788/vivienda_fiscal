@@ -105,11 +105,11 @@
                         </table>
                         <table style="width:100%; border-collapse:collapse; font-size:11px; margin-top:8px;">
                             <tr>
-                                <td style="width:70%;"></td>
-                                <td style="width:15%; text-align:right;">
+                                <td style="width:65%;"></td>
+                                <td style="width:14%; text-align:right;">
                                     <strong>total:</strong>
                                 </td>
-                                <td style="width:7%; text-align:right;">
+                                <td style="width:8%; text-align:right;">
                                     <span t-esc="report_data.get('total_anos', 0)"/>
                                 </td>
                                 <td style="width:8%; text-align:right;">

@@ -10,7 +10,7 @@
                     <field name="personal_id" />
                     <field name="reparto_id" />
                     <field name="inmueble_id" />
-                    <field name="state" widget="badge" decoration-bf="state == 'draft'" decoration-primary="state == 'por_aprobar'" decoration-success="state == 'aprobado'" decoration-warning="state == 'llegada' or state == 'fin'" decoration-danger="state == 'anular'"/>
+                    <field name="state" widget="badge" decoration-bf="state == 'draft'" decoration-primary="state == 'por_aprobar'" decoration-success="state == 'aprobado'" decoration-warning="state == 'llegada' or state == 'fin'" decoration-danger="state == 'anular' or state == 'baja'"/>
                     <button name="action_llegada" string="Recepción" type="object" icon="fa-thumbs-up" class="btn-primary" invisible="state != 'aprobado'"/>
                     <button name="action_salida" string="Salida" type="object" icon="fa-times-circle" class="btn-warning"  invisible="state != 'llegada'"/>
                     <button name="action_archivar" string="Archivar" type="object" icon="fa-archive" class="btn-secondary" invisible="state not in ['draft','anular','fin']"/>
@@ -46,6 +46,7 @@
                                 <field name="condicion" invisible="1"/>
                                 <field name="aceptacion_termino" readonly="state != 'draft'"/>
                                 <field name="fecha_alta" invisible="state == 'draft'" readonly="1"/>
+                                <field name="fecha_baja" invisible="state == 'draft'" readonly="1"/>
                             </group>
                             <!-- DERECHA: ambientes del inmueble -->
                             <group string="Ambientes disponibles del inmueble" invisible="not inmueble_id">

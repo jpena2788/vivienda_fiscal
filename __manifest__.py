@@ -37,6 +37,7 @@
         'wizards/inmueble_informacion_ambiente_wizard_view.xml', 
         # 'wizard/inmueble_subir_comprobante_wizard_view.xml',  
         'wizards/vivienda_historial_wizard_view.xml',
+        'wizards/vivienda_baja_wizard_view.xml',
 
         #registro
         'views/registro/vivienda_ambiente_inmueble_view.xml',
