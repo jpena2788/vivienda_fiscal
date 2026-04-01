@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- BQ-1 -->
+        <record id="inmueble_basali_bq1_001" model="vivienda.inmueble">
+            <field name="name">BASALI-BQ1-001</field>
+            <field name="sector_id" ref="sector_basali"/>
+            <field name="bloque">BQ-1</field>
+            <field name="numero">001</field>
+            <field name="address">BASALI</field>
+            <field name="condicion">permanente</field>
+            <field name="estado">disponible</field>
+            <field name="tipo_inmueble_id" ref="tp_vivienda_fiscal"/>
+            <field name="reparto_id" ref="th_gestion_organico.are_reparto_5"/>
+        </record>
+        <record id="inmueble_basali_bq1_004" model="vivienda.inmueble">
+            <field name="name">BASALI-BQ1-004</field>
+            <field name="sector_id" ref="sector_basali"/>
+            <field name="bloque">BQ-1</field>
+            <field name="numero">004</field>
+            <field name="address">BASALI</field>
+            <field name="condicion">permanente</field>
+            <field name="estado">disponible</field>
+            <field name="tipo_inmueble_id" ref="tp_vivienda_fiscal"/>
+            <field name="reparto_id" ref="th_gestion_organico.are_reparto_5"/>
+        </record>
+        <!-- BQ-2 -->
+        <record id="inmueble_basali_bq2_001" model="vivienda.inmueble">
+            <field name="name">BASALI-BQ2-001</field>
+            <field name="sector_id" ref="sector_basali"/>
+            <field name="bloque">BQ-2</field>
+            <field name="numero">001</field>
+            <field name="address">BASALI</field>
+            <field name="condicion">permanente</field>
+            <field name="estado">disponible</field>
+            <field name="tipo_inmueble_id" ref="tp_vivienda_fiscal"/>
+            <field name="reparto_id" ref="th_gestion_organico.are_reparto_5"/>
+        </record>
+        <!-- BQ-B -->
+        <record id="inmueble_basali_bqb_002" model="vivienda.inmueble">
+            <field name="name">BASALI-BQB-002</field>
+            <field name="sector_id" ref="sector_basali"/>
+            <field name="bloque">BQ-B</field>
+            <field name="numero">002</field>
+            <field name="address">BASALI</field>
+            <field name="condicion">permanente</field>
+            <field name="estado">disponible</field>
+            <field name="tipo_inmueble_id" ref="tp_vivienda_fiscal"/>
+            <field name="reparto_id" ref="th_gestion_organico.are_reparto_5"/>
+        </record>
+        <!-- VILLA -->
+        <record id="inmueble_basali_villa_12" model="vivienda.inmueble">
+            <field name="name">BASALI-VILLA-12</field>
+            <field name="sector_id" ref="sector_basali"/>
+            <field name="bloque">VILLA</field>
+            <field name="numero">12</field>
+            <field name="address">BASALI</field>
+            <field name="condicion">permanente</field>
+            <field name="estado">disponible</field>
+            <field name="tipo_inmueble_id" ref="tp_vivienda_fiscal"/>
+            <field name="reparto_id" ref="th_gestion_organico.are_reparto_5"/>
+        </record>
+    </data>
+</odoo>

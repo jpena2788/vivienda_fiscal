@@ -19,24 +19,24 @@
         </list>
       </field>
     </record>
-    <!-- <record id="view_vivienda_ambiente_search" model="ir.ui.view">
+    <record id="view_vivienda_ambiente_search" model="ir.ui.view">
       <field name="name">vivienda.ambiente</field>
       <field name="model">vivienda.ambiente</field>
       <field name="arch" type="xml">
         <search string="">
           <field name="inmueble_id"/>
           <field name="name" />
-          <field name="caracteristica_ids" />
+          <!-- <field name="caracteristica_ids" /> -->
           <field name="piso_id" />
           <field name="state" />
           <group>
-            <filter name="vivienda" string="Agrupar vivienda" context="{'group_by': 'inmueble_id'}" />
+            <filter name="reparto" string="Agrupar Reparto" context="{'group_by': 'reparto_id'}" />
+            <filter name="inmueble" string="Agrupar Inmueble" context="{'group_by': 'inmueble_id'}" />
             <filter name="estado" string="Agrupar por estado" context="{'group_by': 'state'}" />
-            <filter string="Inactivo/Activo" name="inactive" domain="[('active','=',False)]" />
           </group>
         </search>
       </field>
-    </record> -->
+    </record>
     <record id="view_vivienda_ambiente_form" model="ir.ui.view">
       <field name="name">vivienda.ambiente.form</field>
       <field name="model">vivienda.ambiente</field>
@@ -45,11 +45,13 @@
           <!-- HEADER -->
           <header>
             <field name="state" widget="statusbar"/>
-            <button name="action_libre" string="Libre" type="object" class="btn-primary" invisible="state not in ['mantenimiento','no_op','ocupado']"/>
-            <button name="action_mantenimiento" string="Mantenimiento" type="object" class="btn-warning" invisible="state not in ['libre','no_op','ocupado']"/>
-            <button name="action_no_operativo" string="No operativo" type="object" class="btn-danger" invisible="state not in ['libre','mantenimiento','ocupado']"/>
-            <button name="action_ocupado" string="Ocupado" type="object" class="btn-success" invisible="state not in ['libre','mantenimiento','no_op']"/>
-          </header>
+            <button name="action_libre" string="Libre" type="object" class="btn-primary" invisible="state not in ['mantenimiento','no_op','ocupado','operativo','opcl']"/>
+            <button name="action_operativo" string="Operativo" type="object" class="btn-primary" invisible="state not in ['libre','mantenimiento','no_op','ocupado','opcl']"/>
+            <button name="action_mantenimiento" string="Mantenimiento" type="object" class="btn-warning" invisible="state not in ['libre','no_op','ocupado','operativo','opcl']"/>
+            <button name="action_operativo_limitacion" string="Operativo con Limitaciones" type="object" class="btn-secondary" invisible="state not in ['libre','no_op','mantenimiento','ocupado','operativo']"/>
+            <button name="action_no_operativo" string="No operativo" type="object" class="btn-danger" invisible="state not in ['libre','mantenimiento','ocupado','operativo','opcl']"/>
+            <button name="action_ocupado" string="Ocupado" type="object" class="btn-success" invisible="state not in ['libre','mantenimiento','no_op','operativo','opcl']"/>
+           </header>
           <!-- CONTENIDO -->
           <sheet>
             <!-- TITULO -->
@@ -103,23 +105,23 @@
         </form>
       </field>
     </record> -->
-    <record id="action_vivienda_ambiente" model="ir.actions.act_window">
+    <!-- <record id="action_vivienda_ambiente" model="ir.actions.act_window">
       <field name="name">Ambientes</field>
       <field name="res_model">vivienda.ambiente</field>
       <field name="view_mode">list,form</field>
-    </record>
-    <!-- <record id="action_vivienda_ambiente_server" model="ir.actions.server">
-      <field name="name">Ambiente</field>
+    </record> -->
+    <record id="action_vivienda_ambiente_server" model="ir.actions.server">
+      <field name="name">Ambiente Inmueble</field>
       <field name="model_id" ref="model_vivienda_ambiente" />
       <field name="binding_model_id" ref="model_vivienda_ambiente" />
       <field name="state">code</field>
       <field name="code">action = env['vivienda.ambiente'].ver_ambiente()</field>
-    </record> -->
-    <menuitem name="Ambiente"
-          action="action_vivienda_ambiente"
-          id="menu_action_vivienda_habitacion"
+    </record>
+    <menuitem name="Ambiente Inmueble"
+          action="action_vivienda_ambiente_server"
+          id="menu_action_vivienda_ambiente"
           parent="vivienda_fiscal.menu_vf_root_reg"
-          sequence="4"/>
+          sequence="3"/>
     <!-- <menuitem name="Ambiente" action="action_vivienda_ambiente_server" id="menu_action_vivienda_habitacion" parent="vivienda_fiscal.menu_vf_root_conf" sequence="5" /> -->
   </data>
 </odoo>

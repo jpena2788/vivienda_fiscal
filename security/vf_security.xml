@@ -2,53 +2,125 @@
 <odoo>
     <!-- Categoría para agrupar privilegios de Vivienda Fiscal -->
     <record id="module_category_vivienda_fiscal" model="ir.module.category">
-        <field name="name">Vivienda Fiscal</field>
+        <field name="name">Gestión de Vivienda</field>
         <field name="sequence">50</field>
     </record>
     <record id="privilege_vivienda_fiscal" model="res.groups.privilege">
         <field name="name">Vivienda Fiscal</field>
         <field name="category_id" ref="module_category_vivienda_fiscal"/>
+        <field name="description">Ayuda en administración de módulo de vivienda</field>
         <field name="sequence">3</field>
     </record>
-    <!-- GRUPO LECTOR -->
+    <!-- GRUPO LECTOR permite ver informacion solo de vivienda-->
     <record model="res.groups" id="group_vf_reader">
-        <field name="name">Consulta</field>
+        <field name="name">Lector</field>
         <field name="sequence">10</field>
         <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
         <field name="privilege_id" ref="privilege_vivienda_fiscal"/>
     </record>
     <!-- GRUPO OPERADOR -->
-    <record id="group_vf_operator" model="res.groups">
+    <record model="res.groups" id="group_vf_operator">
         <field name="name">Operador</field>
         <field name="sequence">20</field>
         <field name="implied_ids" eval="[(4, ref('group_vf_reader'))]"/>
         <field name="privilege_id" ref="privilege_vivienda_fiscal"/>
     </record>
-    <!-- GRUPO ADMIN -->
-    <record id="group_vf_admin" model="res.groups">
-        <field name="name">Administrador</field>
-        <field name="privilege_id" ref="privilege_vivienda_fiscal"/>
+   
+
+
+    <!-- ALOJAMIENTO -->
+    <record id="privilege_alojamiento" model="res.groups.privilege">
+        <field name="name">Alojamiento</field>
+        <field name="category_id" ref="module_category_vivienda_fiscal"/>
+        <field name="description">Ayuda en administración de módulo de alojamiento</field>
+        <field name="sequence">3</field>
+    </record>
+    <!-- GRUPO LECTOR permite ver informacion solo de alojamiento-->
+    <record model="res.groups" id="group_al_reader">
+        <field name="name">Lector</field>
+        <field name="sequence">10</field>
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+        <field name="privilege_id" ref="privilege_alojamiento"/>
+    </record>
+    <!-- GRUPO OPERADOR -->
+    <record model="res.groups" id="group_al_operator">
+        <field name="name">Operador</field>
         <field name="sequence">20</field>
-        <field name="implied_ids" eval="[(4, ref('group_vf_operator'))]"/>
+        <field name="implied_ids" eval="[(4, ref('group_al_reader'))]"/>
+        <field name="privilege_id" ref="privilege_alojamiento"/>
+    </record>
+   
+
+    <!-- Un privilegio por cada grupo para selección independiente -->
+    <record id="privilegio_vivienda_encargado_solicitud" model="res.groups.privilege">
+        <field name="name">Encargado de solicitudes</field>
+        <field name="category_id" ref="module_category_vivienda_fiscal"/>
+        <field name="sequence">1</field>
+    </record>
+    <record model="res.groups" id="group_vivienda_encargado_solicitud">
+        <field name="name">Habilitar</field>
+        <field name="privilege_id" ref="privilegio_vivienda_encargado_solicitud"/>
+    </record>
+     <!-- Un privilegio por cada grupo para selección independiente -->
+    <record id="privilegio_vivienda_supervisor_vivienda" model="res.groups.privilege">
+        <field name="name">Supervisor de Vivienda</field>
+         <field name="category_id" ref="module_category_vivienda_fiscal"/>
+        <field name="sequence">3</field>
+    </record>
+    <record model="res.groups" id="group_vivienda_supervisor_vivienda">
+        <field name="name">Habilitar</field>
+        <field name="privilege_id" ref="privilegio_vivienda_supervisor_vivienda"/>
+    </record>
+    <!-- Un privilegio por cada grupo para selección independiente -->
+    <record id="privilegio_vivienda_administrador" model="res.groups.privilege">
+        <field name="name">Administrador de Vivienda y Alojamientos</field>
+         <field name="category_id" ref="module_category_vivienda_fiscal"/>
+        <field name="sequence">2</field>
+    </record>
+    <record model="res.groups" id="group_vivienda_administrador">
+        <field name="name">Habilitar</field>
+        <field name="privilege_id" ref="privilegio_vivienda_administrador"/>
+    </record>
+     <!-- Un privilegio por cada grupo para selección independiente -->
+    <record id="privilegio_vivienda_director_vivienda" model="res.groups.privilege">
+        <field name="name">Director de Vivienda</field>
+         <field name="category_id" ref="module_category_vivienda_fiscal"/>
+        <field name="sequence">2</field>
+    </record>
+    <record model="res.groups" id="group_vivienda_director_vivienda">
+        <field name="name">Habilitar</field>
+        <field name="privilege_id" ref="privilegio_vivienda_director_vivienda"/>
+    </record>
+
+    <!-- Un privilegio por cada grupo para selección independiente -->
+    <record id="privilegio_vivienda_administrador_general" model="res.groups.privilege">
+        <field name="name">Administrador General de modulo de Vivienda</field>
+         <field name="category_id" ref="module_category_vivienda_fiscal"/>
+        <field name="sequence">2</field>
+    </record>
+    <record model="res.groups" id="group_vivienda_administrador_general">
+        <field name="name">Habilitar</field>
+        <field name="privilege_id" ref="privilegio_vivienda_administrador_general"/>
     </record>
     <record model="ir.rule" id="rule_vf_all_access">
-        <field name="name">Acceso completo Inmueble</field>
-        <field name="model_id" ref="model_vivienda_inmueble"/>
+        <field name="name">Acceso completo Compañias</field>
+        <field name="model_id" ref="base.model_res_company"/>
         <field name="domain_force">[(1, '=', 1)]</field>
-        <field name="groups" eval="[(4, ref('group_vf_admin'))]"/>
+        <field name="groups" eval="[(4, ref('group_vivienda_director_vivienda')),(4, ref('group_vivienda_administrador')),(4, ref('group_vivienda_administrador_general'))]"/>
         <field name="perm_read">1</field>
         <field name="perm_write">1</field>
         <field name="perm_create">1</field>
         <field name="perm_unlink">1</field>
     </record>
-    <record model="ir.rule" id="rule_vf_operator_access">
-        <field name="name">Operador vivienda fiscal</field>
-        <field name="model_id" ref="model_vivienda_inmueble"/>
+    <record model="ir.rule" id="rule_vf_all_access">
+        <field name="name">Acceso completo Inmueble</field>
+        <field name="model_id" ref="vivienda_fiscal.model_vivienda_inmueble"/>
         <field name="domain_force">[(1, '=', 1)]</field>
-        <field name="groups" eval="[(4, ref('group_vf_operator'))]"/>
+        <field name="groups" eval="[(4, ref('group_vivienda_director_vivienda')),(4, ref('group_vivienda_administrador')),(4, ref('group_vivienda_administrador_general'))]"/>
         <field name="perm_read">1</field>
         <field name="perm_write">1</field>
         <field name="perm_create">1</field>
-        <field name="perm_unlink">0</field>
+        <field name="perm_unlink">1</field>
     </record>
+    
 </odoo>

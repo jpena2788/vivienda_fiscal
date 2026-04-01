@@ -3,7 +3,7 @@ from odoo import models, fields, api
 from string import ascii_letters, digits, whitespace
 
 class HabitacionUsuario(models.Model):
-    _name = 'vivienda.habitacion_por_usuario'
+    _name = 'hospedaje.habitacion_por_usuario'
     _description = 'Número de habitaciones por usuario'
     _inherit = [ 'mail.thread', 'mail.activity.mixin']
     _rec_name = "habitacion_usuario"

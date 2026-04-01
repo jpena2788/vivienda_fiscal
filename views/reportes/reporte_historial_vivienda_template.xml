@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- REPORTE PDF -->
+    <record id="action_historial_vivienda" model="ir.actions.report">
+        <field name="name">Certificación Histórica Vivienda</field>
+        <field name="model">vivienda.inmueble_asignado</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">vivienda_fiscal.reporte_historial_vivienda_template</field>
+        <field name="report_file">vivienda_fiscal.reporte_historial_vivienda_template</field>
+        <field name="paperformat_id" ref="hr.paperformat_hr_employee_badge" />
+        <field name="print_report_name">'Certificacion_Historica_Vivienda'</field>
+        <field name="binding_model_id" ref="model_vivienda_inmueble_asignado" />
+        <field name="binding_type">report</field>
+    </record>
+    <template id="reporte_historial_vivienda_template">
+        <t t-call="web.external_layout">
+            <main>
+                <t t-set="lineas" t-value="report_data.get('lineas', [])"/>
+                <t t-if="lineas">
+                    <div class="page">
+                        <table style="width:100%; border-collapse:collapse; font-size:11px; margin-bottom:8px;">
+                            <tr>
+                                <td style="width:34%; text-align:left;">
+                                    <span t-esc="report_data.get('codigo_reporte', '')"/>
+                                </td>
+                                <td style="width:32%; text-align:center; font-weight:bold;">ARMADA DEL ECUADOR</td>
+                                <td style="width:18%; text-align:right;">Pag.#</td>
+                                <td style="width:16%; text-align:right;">
+                                    <span t-esc="report_data.get('pagina', 1)"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="text-align:left;">
+                                    <span t-esc="report_data.get('archivo_fuente', '')"/>
+                                </td>
+                                <td style="text-align:center; font-weight:bold;">DIRECCION DE VIVIENDA</td>
+                                <td colspan="2" style="text-align:right;">
+                                    <span t-esc="report_data.get('fecha_reporte', '')"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="4" style="text-align:center; font-weight:bold;">CERTIFICACIÓN</td>
+                            </tr>
+                            <tr>
+                                <td colspan="4" style="text-align:center; font-weight:bold;">REGISTRO HISTORICO NACIONAL DE OCUPACION DE VIVIENDA FISCAL DE:
+                                    <strong>
+                                        <span t-esc="report_data.get('empleado_nombre', '')" />
+                                    </strong>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="4" style="text-align:center; font-weight:bold;">
+                                    <strong>No. CEDULA:</strong>
+                                    <span t-esc="report_data.get('cedula', '')" />
+                                </td>
+                            </tr>
+                        </table>
+                        <table style="width:100%; border-collapse:collapse; font-size:10.5px; border-top:1px solid #000; border-bottom:1px solid #000;">
+                            <thead>
+                                <tr>
+                                    <th style="padding:4px; text-align:left;">SECTOR</th>
+                                    <th style="padding:4px; text-align:left;">BLOQUE</th>
+                                    <th style="padding:4px; text-align:left;">DEPARTAMENTO</th>
+                                    <th style="padding:4px; text-align:left;">FECHA DE INGRESO</th>
+                                    <th style="padding:4px; text-align:left;">FECHA DE SALIDA</th>
+                                    <th style="padding:4px; text-align:left;">MOTIVO DE LA SALIDA</th>
+                                    <th style="padding:4px; text-align:right;">ANOS</th>
+                                    <th style="padding:4px; text-align:right;">MESES</th>
+                                    <th style="padding:4px; text-align:right;">DIAS</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="lineas" t-as="a">
+                                    <tr>
+                                        <td style="padding:3px 4px;">
+                                            <span t-esc="a.get('sector', '')" />
+                                        </td>
+                                        <td style="padding:3px 4px;">
+                                            <span t-esc="a.get('bloque', '')" />
+                                        </td>
+                                        <td style="padding:3px 4px;">
+                                            <span t-esc="a.get('departamento', '')" />
+                                        </td>
+                                        <td style="padding:3px 4px;">
+                                            <span t-esc="a.get('fecha_ingreso', '')" />
+                                        </td>
+                                        <td style="padding:3px 4px;">
+                                            <span t-esc="a.get('fecha_salida', '')" />
+                                        </td>
+                                        <td style="padding:3px 4px;">
+                                            <span t-esc="a.get('motivo_salida', '')" />
+                                        </td>
+                                        <td style="padding:3px 4px; text-align:right;">
+                                            <span t-esc="a.get('anos', 0)" />
+                                        </td>
+                                        <td style="padding:3px 4px; text-align:right;">
+                                            <span t-esc="a.get('meses', 0)" />
+                                        </td>
+                                        <td style="padding:3px 4px; text-align:right;">
+                                            <span t-esc="a.get('dias_actuales', 0)" />
+                                        </td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+                        <table style="width:100%; border-collapse:collapse; font-size:11px; margin-top:8px;">
+                            <tr>
+                                <td style="width:70%;"></td>
+                                <td style="width:15%; text-align:right;">
+                                    <strong>total:</strong>
+                                </td>
+                                <td style="width:7%; text-align:right;">
+                                    <span t-esc="report_data.get('total_anos', 0)"/>
+                                </td>
+                                <td style="width:8%; text-align:right;">
+                                    <span t-esc="report_data.get('total_meses', 0)"/>
+                                </td>
+                                <td style="width:8%; text-align:right;">
+                                    <span t-esc="report_data.get('total_dias_actuales', 0)"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td colspan="4" style="text-align:right;">
+                                    <strong>Son :</strong>
+                                    <span t-esc="report_data.get('total_literal', '0 a.+ 0 meses')"/>
+                                </td>
+                            </tr>
+                        </table>
+                        <div style="margin-top:40px; text-align:center; font-size:11px;">
+                            __________________________________
+                            <br/>
+                            DEPARTAMENTO DE SISTEMAS
+                        </div>
+                    </div>
+                </t>
+                <t t-if="not lineas">
+                    <div class="page">
+                        <h2 style="text-align:center;">REPORTE DE TIEMPO DE USO DE VIVIENDA FISCAL</h2>
+                        <p>No existen asignaciones con fecha de alta para la persona seleccionada.</p>
+                    </div>
+                </t>
+            </main>
+        </t>
+    </template>
+</odoo>

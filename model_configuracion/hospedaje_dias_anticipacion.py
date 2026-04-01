@@ -3,7 +3,7 @@ from odoo import models, fields, api
 from string import ascii_letters, digits, whitespace
 
 class DiasAnticipacion(models.Model):
-    _name = 'vivienda.dias_anticipacion'
+    _name = 'hospedaje.dias_anticipacion'
     _description = 'Días de anticipación'
     _inherit = [ 'mail.thread', 'mail.activity.mixin']
     _rec_name = "dia_anticipacion"

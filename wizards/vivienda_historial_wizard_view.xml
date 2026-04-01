@@ -4,8 +4,8 @@
     
     <!-- WIZARD -->
     <record id="view_historial_vivienda_wizard" model="ir.ui.view">
-        <field name="name">vf.historial.wizard.form</field>
-        <field name="model">vf.historial.wizard</field>
+        <field name="name">vivienda.historial.wizard.form</field>
+        <field name="model">vivienda.historial.wizard</field>
         <field name="arch" type="xml">
 
             <form string="Consulta Historial Vivienda">
@@ -14,7 +14,7 @@
 
                     <field name="empleado_id" />
 
-                    <field name="cedula" />
+                    <field name="cedula" groups="vivienda_fiscal.group_vivienda_administrador_general,vivienda_fiscal.group_vivienda_administrador,vivienda_fiscal.group_vivienda_encargado_solicitud"/>
 
                 </group>
 
@@ -34,10 +34,14 @@
     <!-- ACCION PARA ABRIR EL WIZARD -->
     <record id="action_historial_vivienda_wizard" model="ir.actions.act_window">
         <field name="name">Certificación Histórica Vivienda</field>
-        <field name="res_model">vf.historial.wizard</field>
+        <field name="res_model">vivienda.historial.wizard</field>
         <field name="view_mode">form</field>
         <field name="target">new</field>
     </record>
 
+    <menuitem id="menu_historial_vivienda" 
+                name="Certificado de Tiempo Uso Vivienda" 
+                parent="menu_vf_root_rep" 
+                action="action_historial_vivienda_wizard" /> 
      
 </odoo>

@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data noupdate="1">
+        <!-- tipo vivienda -->
+        <record id="tp_vivienda_fiscal" model="vivienda.tipo_inmueble">
+            <field name="name">Vivienda Fiscal</field>
+            <field name="active">True</field>
+        </record>
+        <record id="tp_alojamiento" model="vivienda.tipo_inmueble">
+            <field name="name">Alojamiento Naval</field>
+            <field name="active">True</field>
+        </record>
+        <!-- sectores -->
+        <record id="sector_basali" model="vivienda.sector">
+            <field name="name">BASALI</field>
+            <field name="active">True</field>
+        </record>
+        <record id="sector_bascri" model="vivienda.sector">
+            <field name="name">BASCRI</field>
+            <field name="active">True</field>
+        </record>
+        <record id="sector_capsey" model="vivienda.sector">
+            <field name="name">CAPSEY</field>
+            <field name="active">True</field>
+        </record>
+        <record id="sector_capvil" model="vivienda.sector">
+            <field name="name">CAPVIL</field>
+            <field name="active">True</field>
+        </record>
+        <record id="sector_capayo" model="vivienda.sector">
+            <field name="name">CAPAYO</field>
+            <field name="active">True</field>
+        </record>
+        <record id="sector_esmeraldas" model="vivienda.sector">
+            <field name="name">ESMERALDAS</field>
+            <field name="active">True</field>
+        </record>
+        <record id="sector_arcadia" model="vivienda.sector">
+            <field name="name">ARCADIA</field>
+            <field name="active">True</field>
+        </record>
+        <record id="sector_bahia" model="vivienda.sector">
+            <field name="name">BAHIA</field>
+            <field name="active">True</field>
+        </record>
+        <record id="sector_umiña" model="vivienda.sector">
+            <field name="name">UMIÑA</field>
+            <field name="active">True</field>
+        </record>
+        <record id="sector_colorado" model="vivienda.sector">
+            <field name="name">COLORADO</field>
+            <field name="active">True</field>
+        </record>
+        <record id="sector_el_coca" model="vivienda.sector">
+            <field name="name">EL COCA</field>
+            <field name="active">True</field>
+        </record>
+        <record id="sector_rocafuerte" model="vivienda.sector">
+            <field name="name">ROCAFUERTE</field>
+            <field name="active">True</field>
+        </record>
+        <record id="sector_putumayo" model="vivienda.sector">
+            <field name="name">PUTUMAYO</field>
+            <field name="active">True</field>
+        </record>
+        <record id="sector_musahualli" model="vivienda.sector">
+            <field name="name">MUSAHUALLI</field>
+            <field name="active">True</field>
+        </record>
+        <record id="sector_esnaja" model="vivienda.sector">
+            <field name="name">ESNAJA</field>
+            <field name="active">True</field>
+        </record>
+        <record id="sector_portuaria" model="vivienda.sector">
+            <field name="name">PORTUARIA</field>
+            <field name="active">True</field>
+        </record>
+        <record id="sector_san_lorenzo" model="vivienda.sector">
+            <field name="name">SAN LORENZO</field>
+            <field name="active">True</field>
+        </record>
+        <record id="sector_el_batan" model="vivienda.sector">
+            <field name="name">EL BATAN</field>
+            <field name="active">True</field>
+        </record>
+        <record id="sector_ado_carcelen" model="vivienda.sector">
+            <field name="name">ADO CARCELEN</field>
+            <field name="active">True</field>
+        </record>
+        <record id="sector_la_merced" model="vivienda.sector">
+            <field name="name">LA MERCED</field>
+            <field name="active">True</field>
+        </record>
+        <record id="sector_libertadores" model="vivienda.sector">
+            <field name="name">LIBERTADORES</field>
+            <field name="active">True</field>
+        </record>
+        <record id="sector_luluncoto" model="vivienda.sector">
+            <field name="name">LULUNCOTO</field>
+            <field name="active">True</field>
+        </record>
+        <record id="sector_dc1_inca" model="vivienda.sector">
+            <field name="name">DC1 INCA</field>
+            <field name="active">True</field>
+        </record>
+        <record id="sector_salazar_gomez" model="vivienda.sector">
+            <field name="name">SALAZAR GOMEZ</field>
+            <field name="active">True</field>
+        </record>
+        <record id="sector_nieto" model="vivienda.sector">
+            <field name="name">NIETO</field>
+            <field name="active">True</field>
+        </record>
+        <record id="sector_liceo_naval" model="vivienda.sector">
+            <field name="name">LICEO NAVAL</field>
+            <field name="active">True</field>
+        </record>
+        <record id="sector_las_penas" model="vivienda.sector">
+            <field name="name">LAS PEÑAS</field>
+            <field name="active">True</field>
+        </record>
+        <record id="sector_ciudad_de_quito" model="vivienda.sector">
+            <field name="name">CIUDAD DE QUITO</field>
+            <field name="active">True</field>
+        </record>
+        <record id="sector_varios" model="vivienda.sector">
+            <field name="name">VARIOS</field>
+            <field name="active">True</field>
+        </record>
+        <record id="sector_sagitario" model="vivienda.sector">
+            <field name="name">SAGITARIO</field>
+            <field name="active">True</field>
+        </record>
+    </data>
+</openerp>

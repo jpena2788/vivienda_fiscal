@@ -9,7 +9,9 @@
                 <field name="address"/>
                 <field name="tipo_inmueble_id"/>
                 <field name="sector_id"/>
+                <field name="reparto_id"/>
                 <field name="estado"/>
+                <field name="condicion" />
                 <field name="active"/>
             </list>
         </field>
@@ -33,37 +35,56 @@
                             <field name="address"/>
                             <field name="tipo_inmueble_id"/>
                             <field name="sector_id"/>
+                            <field name="reparto_id"/>
+                            <field name="tipo_huesped_ids" required="1" widget="many2many_tags" options="{'no_create': True, 'no_open': True, 'no_create_edit': True}" />
                         </group>
                         <group>
                             <field name="bloque"/>
                             <field name="numero"/>
                             <field name="estado"/>
                             <field name="active"/>
+                            <field name="condicion"/>
                         </group>
                     </group>
-                    <!-- CONFIGURACIÓN -->
-                    <group string="Configuración de Reserva">
-                        <group>
-                            <field name="hora_entrada"/>
-                            <field name="hora_salida"/>
-                        </group>
-                        <group>
-                            <field name="dia_anticipacion"/>
-                            <field name="dia_anticipacion_maximo"/>
-                        </group>
-                    </group>
-                    <!-- CONTROL -->
-                    <group string="Control">
-                        <group>
-                            <field name="numero_habitacion_reservada"/>
-                            <field name="habitacion_usuario"/>
-                            <field name="dias_pago"/>
-                        </group>
-                    </group>
-                    <!-- POLÍTICAS -->
-                    <group string="Políticas">
-                        <field name="politicas_ids" widget="many2many_tags"/>
-                    </group>
+                    <notebook>
+                        <!-- POLÍTICAS -->
+                        <page string="Políticas">
+                            <group string="Políticas">
+                                <field name="politicas_ids" widget="many2many_tags"/>
+                            </group>
+                        </page>
+                        <!-- AMBIENTES -->
+                        <page string="Ambientes">
+                            <field name="ambiente_ids" widget="one2many_list" nolabel="1">
+                                <list string="Ambientes del Inmueble" editable="bottom">
+                                    <field name="name" />
+                                    <field name="state" />
+                                    <field name="active" widget="boolean_toggle" />
+                                </list>
+                            </field>
+                        </page>
+                        <!-- CONFIGURACIÓN -->
+                        <page string="Configuración" invisible="condicion == 'permanente'">
+                            <group string="Configuración de Reserva">
+                                <group>
+                                    <field name="hora_entrada"/>
+                                    <field name="hora_salida"/>
+                                </group>
+                                <group>
+                                    <field name="dia_anticipacion"/>
+                                    <field name="dia_anticipacion_maximo"/>
+                                </group>
+                            </group>
+                            <!-- CONTROL -->
+                            <group string="Control">
+                                <group>
+                                    <field name="numero_ambiente_reservada"/>
+                                    <field name="ambiente_usuario"/>
+                                    <field name="dias_pago"/>
+                                </group>
+                            </group>
+                        </page>
+                    </notebook>
                 </sheet>
             </form>
         </field>
@@ -72,34 +93,57 @@
         <field name="name">vivienda.inmueble.search</field>
         <field name="model">vivienda.inmueble</field>
         <field name="arch" type="xml">
-            <search string="Buscar Inmuebles">
+            <search>
                 <field name="name"/>
                 <field name="address"/>
                 <field name="tipo_inmueble_id"/>
                 <field name="sector_id"/>
-                <filter name="f_disponible" string="Disponibles"
-                    domain="[('estado','=','disponible')]"/>
-                <filter name="f_ocupado" string="Ocupados"
-                    domain="[('estado','=','ocupado')]"/>
-                <filter name="f_mantenimiento" string="Mantenimiento"
-                    domain="[('estado','=','mantenimiento')]"/>
+                <filter name="f_disponible" string="Disponibles" domain="[('estado','=','disponible')]"/>
+                <filter name="f_ocupado" string="Ocupados" domain="[('estado','=','ocupado')]"/>
+                <filter name="f_mantenimiento" string="Mantenimiento" domain="[('estado','=','mantenimiento')]"/>
                 <group string="Agrupar por">
-                    <filter name="g_tipo" string="Tipo"
-                        context="{'group_by': 'tipo_inmueble_id'}"/>
-                    <filter name="g_sector" string="Sector"
-                        context="{'group_by': 'sector_id'}"/>
+                    <filter name="g_tipo" string="Sector" context="{'group_by': 'sector_id'}"/>
+                    <filter name="g_sector" string="Inmueble" context="{'group_by': 'tipo_inmueble_id'}"/>
                 </group>
             </search>
         </field>
     </record> -->
+    <record id="view_vivienda_inmueble_search" model="ir.ui.view">
+        <field name="name">vivienda.inmueble.search</field>
+        <field name="model">vivienda.inmueble</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="reparto_id"/>
+                <field name="sector_id"/>
+                <field name="name" />
+                <field name="address"/>
+                <filter name="f_disponible" string="Disponibles" domain="[('estado','=','disponible')]"/>
+                <filter name="f_ocupado" string="Ocupados" domain="[('estado','=','ocupado')]"/>
+                <filter name="f_mantenimiento" string="Mantenimiento" domain="[('estado','=','mantenimiento')]"/>
+                <group>
+                    <filter name="sector" string="Sector" context="{'group_by': 'sector_id'}"/>
+                    <filter name="reparto" string="Agrupar Reparto" context="{'group_by': 'reparto_id'}" />
+                    <filter string="Inactivo" name="inactive" domain="[('active','=',False)]" />
+                </group>
+            </search>
+        </field>
+    </record>
+    <record id="action_vivienda_inmueble_server" model="ir.actions.server">
+        <field name="name">INMUEBLES</field>
+        <field name="model_id" ref="model_vivienda_inmueble" />
+        <field name="binding_model_id" ref="model_vivienda_inmueble" />
+        <field name="state">code</field>
+        <field name="code">action = env['vivienda.inmueble'].ver_inmueble()</field>
+    </record>
+    <!-- 
     <record id="action_vf_inmueble" model="ir.actions.act_window">
         <field name="name">Inmuebles</field>
         <field name="res_model">vivienda.inmueble</field>
         <field name="view_mode">list,form</field>
-    </record>
+    </record> -->
     <menuitem id="menu_vf_inmueble"
                   name="Inmueble"
                   parent="vivienda_fiscal.menu_vf_root_reg"
-                  sequence="2"
-                  action="action_vf_inmueble" />
+                  sequence="1"
+                  action="action_vivienda_inmueble_server" />
 </odoo>

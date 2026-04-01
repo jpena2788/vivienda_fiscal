@@ -74,7 +74,7 @@
             <field name="view_mode">list,form</field>
         </record>
 
-        <menuitem name="Tipo de Ambiente" id="menu_action_vivienda_tipo_ambiente" parent="vivienda_fiscal.menu_vf_root_reg" action="action_vivienda_tipo_ambiente" sequence="1" />
+        <menuitem name="Tipo de Ambiente" id="menu_action_vivienda_tipo_ambiente" parent="vivienda_fiscal.menu_vf_root_conf" action="action_vivienda_tipo_ambiente" sequence="5" />
 
     </data>
 </odoo>

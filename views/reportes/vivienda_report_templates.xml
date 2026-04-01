@@ -24,13 +24,13 @@
                         <span t-field="o.militar_id.name" />
                     </p>
                     <p>
-                        <strong>Fecha inicio:</strong> 
-                        <span t-field="o.fecha_inicio" />
+                        <strong>Fecha alta:</strong> 
+                        <span t-field="o.fecha_alta" />
                     </p>
                     <p>
-                        <strong>Fecha fin:</strong> 
-                        <span t-field="o.fecha_fin" /> 
-                        <t t-if="not o.fecha_fin">N/A</t>
+                        <strong>Fecha baja:</strong> 
+                        <span t-field="o.fecha_baja" /> 
+                        <t t-if="not o.fecha_baja">N/A</t>
                     </p>
                     <p>
                         <strong>Estado:</strong> 
@@ -67,12 +67,12 @@
                         <span t-field="o.militar_id.name" />
                     </p>
                     <p>
-                        <strong>Fecha inicio:</strong> 
-                        <span t-field="o.fecha_inicio" />
+                        <strong>Fecha alta:</strong> 
+                        <span t-field="o.fecha_alta" />
                     </p>
                     <p>
-                        <strong>Fecha fin:</strong> 
-                        <span t-field="o.fecha_fin" />
+                        <strong>Fecha baja:</strong> 
+                        <span t-field="o.fecha_baja" />
                         <t t-if="not o.fecha_fin">N/A</t>
                     </p>
                     <p>
