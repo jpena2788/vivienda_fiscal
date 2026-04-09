@@ -9,6 +9,7 @@
           <field name="inmueble_id"/>
           <field name="piso_id" />
           <field name="tipo_ambiente_id" />
+          <field name="cobro" />
           <field name="state" />
           <button name="action_libre"
             string="Libre"
@@ -67,6 +68,7 @@
                 <field name="inmueble_id"/>
                 <field name="piso_id"/>
                 <field name="tipo_ambiente_id"/>
+                 <field name="cobro"/>
                 <field name="active" widget="boolean_toggle"/>
               </group>
               <!-- DERECHA (IMAGEN GRANDE) -->

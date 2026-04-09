@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-        <record model="ir.ui.view" id="view_vivienda_mis_solicitud_tree">
+        <record model="ir.ui.view" id="view_vivienda_mis_solicitud_temporal_tree">
             <field name="name">vivienda.inmueble_asignado</field>
             <field name="model">vivienda.inmueble_asignado</field>
             <field name="arch" type="xml">
@@ -10,23 +10,22 @@
                     <field name="reparto_solicitud_empleado" />
                     <field name="personal_id" />
                     <field name="reparto_id" />
+                    <field name="sector_id" />
                     <field name="inmueble_id" />
-                    <field name="state" widget="badge" decoration-bf="state == 'draft'" decoration-primary="state == 'por_aprobar'" decoration-success="state == 'aprobado'" decoration-warning="state == 'llegada' or state == 'fin'" decoration-danger="state == 'anular' or state == 'baja'"/>
+                    <field name="state" widget="badge" decoration-bf="state == 'draft'" decoration-primary="state == 'por_aprobar'" decoration-success="state == 'aprobado'" decoration-warning="state == 'fin'" decoration-danger="state == 'anular'"/>
                     <button name="action_estado_por_anular" string="Anular" type="object" icon="fa-ban" class="btn-danger" invisible="state not in ['draft','por_aprobar']"/>
-                    <button name="action_salida" string="Finalizar" type="object" icon="fa-times-circle" class="btn-warning" invisible="condicion != 'temporal' or state != 'aprobado'"/>
                     <button name="action_archivar" string="Archivar" type="object" icon="fa-archive" class="btn-secondary" invisible="(condicion == 'permanente' and state not in ['anular','baja']) or (condicion == 'temporal' and state not in ['anular','fin'])"/>
                 </list>
             </field>
         </record>
-        <record id="view_vivienda_mis_solicitud_form" model="ir.ui.view">
+        <record id="view_vivienda_mis_solicitud_temporal_form" model="ir.ui.view">
             <field name="name">vivienda.inmueble_asignado</field>
             <field name="model">vivienda.inmueble_asignado</field>
             <field name="arch" type="xml">
                 <form string="NUEVO" duplicate="0">
                     <header>
-                        <field name="state" widget="statusbar" statusbar_visible="draft,por_aprobar,anular,asignado,baja,archivar" invisible="condicion != 'permanente'"/>
-                        <field name="state" widget="statusbar" statusbar_visible="draft,por_aprobar,anular,aprobado,fin,archivar" invisible="condicion != 'temporal'"/>
-                        <button name="action_estado_por_anular" string="Anular" type="object" icon="fa-ban" class="btn-secondary" invisible="state not in ['draft','por_aprobar']"/>
+                        <field name="state" widget="statusbar" statusbar_visible="draft,por_aprobar,anular,rechazado,aprobado,fin" invisible="condicion != 'temporal'"/>
+                        <button name="action_estado_por_anular" string="Anular" type="object" icon="fa-ban" class="btn-secondary" invisible="state in ['draft']"/>
                         <button name="solicitar_inmueble" invisible="state != 'draft'" string="Solicitar" type="object" icon="fa-check" class="oe_highlight"/>
                     </header>
                     <sheet>
@@ -36,20 +35,27 @@
                             <group string="Datos de la Solicitud">
                                 <field name="personal_id"
                                            style="color:black; font-weight: bold;font-size: x-large"
+                                           domain="[('user_id', '=', uid)]"
                                            options="{'no_create': True, 'no_open': True, 'no_create_edit': True}"
                                            readonly="state != 'draft'"/>
+                                <field name="personal_permitido_ids" invisible="1"/>
                                 <field name="user_id"
                                            options="{'no_create': True, 'no_open': True, 'no_create_edit': True}"
                                            force_save="1" invisible="1"/>
                                 <field name="inmueble_id_domain" invisible="1"/>
+                                <field name="sector_temporal_dominio" invisible="1"/>
+                                <field name="sector_id"
+                                           string="Sector"
+                                           domain="sector_temporal_dominio"
+                                           options="{'no_create': True, 'no_open': True, 'no_create_edit': True}"
+                                           readonly="state != 'draft'"/>
                                 <field name="inmueble_id"
+                                           domain="[('condicion', '=', 'temporal')] + ([('sector_id', '=', sector_id)] if sector_id else [])"
                                            options="{'no_create': True, 'no_open': True, 'no_create_edit': True}"
                                            readonly="state != 'draft'"/>
                                 <field name="reparto_id" readonly="1" force_save="1"/>
                                 <field name="condicion" invisible="1"/>
                                 <field name="aceptacion_termino" readonly="state != 'draft'"/>
-                                <field name="fecha_alta" invisible="state == 'draft'" readonly="1"/>
-                                <field name="fecha_baja" invisible="state == 'draft'" readonly="1"/>
                             </group>
                             <!-- DERECHA: ambientes del inmueble -->
                             <group string="Ambientes disponibles del inmueble" invisible="not inmueble_id">
@@ -78,20 +84,52 @@
                             </strong>
                         </group>
                         <notebook>
-                            <page string="Selección de Ambientes" invisible="state != 'draft' or condicion == 'permanente'">
+                            <page string="Configuración de Alojamiento" invisible="condicion == 'permanente'">
+                                <group col="3">
+                                    <group >
+                                        <field name="fecha_inicio" readonly="state != 'draft'"/>
+                                    </group>
+                                    <group >
+                                        <field name="fecha_fin" readonly="state != 'draft'"/>
+                                    </group>
+                                </group>
+                                <group col="4">
+                                    <group string="Hora de entrada">
+                                        <h1>
+                                            <field name="hora_entrada" force_save="1" nolabel="1" widget='float_time'/>
+                                        </h1>
+                                    </group>
+                                    <group string="Hora de salida">
+                                        <h1>
+                                            <field name="hora_salida" force_save="1" nolabel="1" widget='float_time'/>
+                                        </h1>
+                                    </group>
+                                    <group string="Días disponibles para pagar"  invisible="state != 'asignado'">
+                                        <h1>
+                                            <field name="dias_pago" force_save="1" readonly="1" />
+                                        </h1>
+                                    </group>
+                                    <group string="Días transcurridos" invisible="state != 'asignado'">
+                                        <h1>
+                                            <field name="dias_transcurridos" force_save="1" readonly="1" />
+                                        </h1>
+                                    </group>
+                                </group>
+                            </page>
+                            <page string="Selección de Ambientes" invisible="condicion == 'permanente'">
                                 <group colspan="2">
-                                    <field name="ambiente_ids" nolabel="1" context="{'default_inmueble_id': inmueble_id}">
+                                    <field name="ambiente_ids" nolabel="1" mode="list" options="{'no_open': True}" context="{'default_inmueble_id': inmueble_id}">
                                         <list limit="5" editable="top">
                                             <field name="sequence" widget="handle" />
-                                            <field name="solicitud_id" required="0" invisible="1" />
+                                            <field name="solicitud_id" invisible="1" />
                                             <field name="inmueble_id" invisible="1"/>
                                             <field name="cantidad" />
                                             <field name="detalle_solicitud_id_domain" invisible="1" />
-                                            <field name="detalle_solicitud_id" domain="detalle_solicitud_id_domain" options="{'no_create': True, 'no_open': True, 'no_create_edit': True}" />
+                                            <field name="detalle_solicitud_id" domain="detalle_solicitud_id_domain" options="{'no_create': True, 'no_open': True, 'no_create_edit': True}" context="{'create': 0, 'edit': 0}"/>
                                             <field name="num_personas" />
                                             <field name="condicion" invisible="1"/>
-                                            <field name="fecha_inicio" required="condicion == 'temporal'" invisible="condicion == 'permanente'"/>
-                                            <field name="fecha_fin" required="condicion == 'temporal'" invisible="condicion == 'permanente'"/>
+                                            <field name="fecha_inicio"  invisible="1"/>
+                                            <field name="fecha_fin"  invisible="1"/>
                                             <field name="precio_diario" />
                                             <field name="precio_total" />
                                             <button name="%(vivienda_fiscal.action_inmueble_solicitud_informacion_ambiente)d" string="Información" type="action" default_focus="0" icon="fa-info" class="oe_highlight" />
@@ -104,65 +142,10 @@
                                     </h1>
                                 </group>
                             </page>
-                            <page string="Selección de ambiente operador" invisible="state == 'draft' or condicion == 'permanente'">
-                                <group colspan="2" string="Ambientes">
-                                    <field name="ambiente_operador_ids" nolabel="1" context="{'default_inmueble_id': inmueble_id,}">
-                                        <list limit="5" editable="top" create="0" delete="0">
-                                            <field name="sequence" widget="handle"/>
-                                            <field name="solicitud_id" required="0" invisible="1"/>
-                                            <field name="inmueble_id" invisible="1"/>
-                                            <field name="condicion" invisible="1"/>
-                                            <field name="fecha_inicio" readonly="state != 'draft' or condicion == 'permanente'"/>
-                                            <field name="fecha_fin" readonly="state != 'draft' or condicion == 'permanente'"/>
-                                            <field name="cantidad" readonly="1"/>
-                                            <field name="detalle_solicitud_id_domain" invisible="1"/>
-                                            <field name="detalle_solicitud_id" domain="detalle_solicitud_id_domain" options="{'no_create': True, 'no_open': True, 'no_create_edit': True}" />
-                                            <field name="precio_diario" invisible="1"/>
-                                            <field name="precio_total" invisible="1"/>
-                                            <field name="detalle_solicitud_id_domain" invisible="1"/>
-                                            <field name="ambiente_id_domain" invisible="1"/>
-                                            <field name="state" invisible="1"/>
-                                            <field name="ambiente_ids" readonly="state != 'por_aprobar'" domain="ambiente_id_domain" widget="many2many_tags" options="{'no_create': True, 'no_open': True, 'no_create_edit': True}"/>
-                                            <field name="es_encargado" readonly="state != 'por_aprobar'" string="Usar ambiente reservadas"/>
-                                        </list>
-                                    </field>
-                                </group>
-                                <group string="Precio total" class="oe_subtotal_footer oe_right">
-                                    <h1>
-                                        <field name="precio" force_save="1" nolabel="1"/>
-                                    </h1>
-                                </group>
-                            </page>
                             <!-- POLÍTICAS -->
                             <page string="Políticas">
                                 <group string="Políticas">
                                     <field name="politicas_ids" widget="many2many_tags"/>
-                                </group>
-                            </page>
-                            <page string="Dependientes">
-                                <group colspan="2" string="Dependientes">
-                                    <field name="dependiente_ids" nolabel="1" options="{'no_create': True, 'no_open': True, 'no_create_edit': True}" readonly="state != 'draft'">
-                                        <list limit="5">
-                                            <field name="parentesco" />
-                                            <field name="apellido_paterno"/>
-                                            <field name="apellido_materno" />
-                                            <field name="primer_nombre" />
-                                            <field name="segundo_nombre" />
-                                        </list>
-                                        <form>
-                                            <group>
-                                                <group>
-                                                    <field name="apellido_paterno" readonly="1" />
-                                                    <field name="primer_nombre" readonly="1"/>
-                                                    <field name="parentesco" readonly="1"/>
-                                                </group>
-                                                <group>
-                                                    <field name="apellido_materno" readonly="1"/>
-                                                    <field name="segundo_nombre" readonly="1"/>
-                                                </group>
-                                            </group>
-                                        </form>
-                                    </field>
                                 </group>
                             </page>
                             <page string="Información del solicitante">
@@ -188,7 +171,7 @@
                 </form>
             </field>
         </record>
-        <record id="view_vivienda_mis_solicitud_search" model="ir.ui.view">
+        <record id="view_vivienda_mis_solicitud_temporal_search" model="ir.ui.view">
             <field name="name">vivienda.inmueble_asignado</field>
             <field name="model">vivienda.inmueble_asignado</field>
             <field name="arch" type="xml">
@@ -202,29 +185,27 @@
                     <field name="hora_salida" />
                     <field name="precio" />
                     <field name="state" />
-                    <!-- <field name="fecha_aprobacion"/> -->
                     <field name="fecha_llegada"/>
                     <field name="fecha_salida"/>
                     <group>
-                        <filter name="inmueble" string="Reparto" context="{'group_by': 'inmueble_id'}" />
+                        <filter name="inmueble" string="Inmueble" context="{'group_by': 'inmueble_id'}" />
                         <filter name="estado" string="Estado" context="{'group_by': 'state'}" />
-                        <filter name="search_fecha_aprobacion" string="Fecha Aprobación" context="{'group_by': 'fecha_aprobacion'}" />
                         <filter name="search_fecha_llegada" string="Fecha Llegada" context="{'group_by': 'fecha_llegada'}"/>
                         <filter name="search_fecha_salida" string="Fecha Salida" context="{'group_by': 'fecha_salida'}"/>
                     </group>
                 </search>
             </field>
         </record>
-        <record model="ir.actions.act_window" id="action_vivienda_mis_solicitud">
-            <field name="name">MIS SOLICITUDES</field>
+        <record model="ir.actions.act_window" id="action_vivienda_mis_solicitud_temporal">
+            <field name="name">SOLICITUD DE ALOJAMIENTO TEMPORAL</field>
             <field name="res_model">vivienda.inmueble_asignado</field>
             <field name="view_ids" eval="[(5, 0, 0),
-                (0, 0, {'view_mode': 'list', 'view_id': ref('vivienda_fiscal.view_vivienda_mis_solicitud_tree')}),
-                (0, 0, {'view_mode': 'form', 'view_id': ref('vivienda_fiscal.view_vivienda_mis_solicitud_form')}),]" />
-            <field name="search_view_id" ref="vivienda_fiscal.view_vivienda_mis_solicitud_search"/>
-            <field name="domain">[('user_id','=', context.get('uid')),('es_archivar','=', False)]</field>
+                (0, 0, {'view_mode': 'list', 'view_id': ref('vivienda_fiscal.view_vivienda_mis_solicitud_temporal_tree')}),
+                (0, 0, {'view_mode': 'form', 'view_id': ref('vivienda_fiscal.view_vivienda_mis_solicitud_temporal_form')}),]" />
+            <field name="search_view_id" ref="vivienda_fiscal.view_vivienda_mis_solicitud_temporal_search"/>
+            <field name="domain">[('user_id','=', context.get('uid')),('es_archivar','=', False),('condicion','=','temporal')]</field>
             <field name="context" eval="{'search_default_inmueble':1, 'search_default_estado':1}"></field>
         </record>
-        <menuitem name="Mis solicitudes de Vivienda" id="menu_action_vivienda_mis_solicitud" parent="vivienda_fiscal.menu_vf_root_sol" action="action_vivienda_mis_solicitud" sequence="1" />
+        <menuitem name="Solicitud de Alojamiento Temporal" id="menu_action_vivienda_mis_solicitud_temporal" parent="vivienda_fiscal.menu_vf_root_sol" action="action_vivienda_mis_solicitud_temporal" sequence="2" />
     </data>
 </odoo>

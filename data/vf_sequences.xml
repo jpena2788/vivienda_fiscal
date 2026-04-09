@@ -8,5 +8,15 @@
         <field name="prefix">VAS-%(year)s-</field>
     </record>
 
+    <record id="seq_vf_solicitud_vivienda" model="ir.sequence">
+        <field name="name">Solicitud Vivienda Fiscal</field>
+        <field name="code">vf.solicitud.vivienda</field>
+        <field name="padding">3</field>
+        <field name="prefix">SOLICITUD-DIRVIV-VIF-</field>
+        <field name="suffix"></field>
+        <field name="number_next">1</field>
+        <field name="number_increment">1</field>
+    </record>
+
    
 </odoo>

@@ -30,6 +30,8 @@ class ViviendaAmbiente(models.Model):
         ondelete='restrict'        
     )
     
+    cobro = fields.Boolean(string='Cobro Si/No', default=False )
+
     tipo_ambiente_id = fields.Many2one(string='Tipo de ambiente', comodel_name='vivienda.tipo_ambiente', ondelete='restrict',required=True)  
     reparto_id = fields.Many2one(string='Reparto', comodel_name='res.company', related='inmueble_id.reparto_id', readonly=True, store=True)  
        

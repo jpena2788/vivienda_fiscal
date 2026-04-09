@@ -7,6 +7,7 @@
             <field name="arch" type="xml">
                 <list>
                     <field name="name" />
+                    <field name="condicion" />
                     <field name="descripcion" />
                 </list>
             </field>
@@ -21,6 +22,7 @@
                         <group>
                             <group colspan="2">
                                 <field name="name" />
+                                <field name="condicion" />
                                 <field name="descripcion" />
                                 <field name="active" widget="boolean_toggle" />
                             </group>                                                      
@@ -58,9 +60,12 @@
             <field name="arch" type="xml">
                 <search string="">
                     <field name="name" />
-                    <field name="descripcion" />                   
+                    <field name="descripcion" />
                     <group>
+                        <filter string="Permanente" name="permanente" domain="[('condicion','in',['permanente','ambos'])]" />
+                        <filter string="Temporal" name="temporal" domain="[('condicion','in',['temporal','ambos'])]" />
                         <filter string="Inactivo" name="inactive" domain="[('active','=',False)]" />
+                        <filter string="Condición" name="group_condicion" context="{'group_by': 'condicion'}" />
                     </group>
                 </search>
             </field>

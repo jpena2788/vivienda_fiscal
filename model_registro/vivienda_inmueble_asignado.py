@@ -15,16 +15,24 @@ class InmuebleAsignado(models.Model):
     # _table = 'vivienda_solicitud_asignacion'
     _description = 'Solicitud y/o registro de Asignación de Vivienda'
     _inherit = [ 'mail.thread', 'mail.activity.mixin']
-    _rec_name = "inmueble_id"
+    _rec_name = "name"
+    # seleccion_estado = [('draft', 'Borrador'), ('por_aprobar', 'Por aprobar'),('asignado', 'Asignado'),('pagado', 'Pagado'), ('aprobado', 'Aprobado'),('anular', 'Anulado'),('llegada', 'Llegada'),('baja', 'De Baja'),('fin', 'Finalizado'),('archivar','Archivar')]
     
-    seleccion_estado = [('draft', 'Borrador'), ('por_aprobar', 'Por aprobar'),('asignado', 'Asignado'),('pagado', 'Pagado'), ('aprobado', 'Aprobado'),('anular', 'Anulado'),('llegada', 'Llegada'),('baja', 'De Baja'),('fin', 'Finalizado'),('archivar','Archivar')]
+    seleccion_estado = [('draft', 'Borrador'), ('anular', 'Anulado'), ('revision', 'Revisión'),('lista_espera', 'Lista de Espera'),('asignado', 'Asignado'),('baja', 'De Baja'), ('por_aprobar', 'Por aprobar'), ('aprobado', 'Aprobado'),('devuelto', 'Devuelto'),('rechazado', 'Rechazado'),('fin', 'Finalizado'),('archivar','Archivar')]
+    name = fields.Char(string='Número de Solicitud', copy=False, default='SOLICITUD-DIRVIV-VIF-SIN NUMERO')
     state = fields.Selection(seleccion_estado, 'Estado Solicitud de Asignación', readonly=True, default='draft', tracking=True)    
-    inmueble_id = fields.Many2one(string='Inmueble', comodel_name='vivienda.inmueble', ondelete='restrict', tracking=True, required=True)       
+    inmueble_id = fields.Many2one(string='Inmueble', comodel_name='vivienda.inmueble', ondelete='restrict', tracking=True)       
     hora_entrada = fields.Float("Hora de entrada", readonly=True, help = "Campo de tipo fecha" )
     hora_salida = fields.Float("Hora de salida", readonly=True)
-    precio = fields.Float(string="Precio", required=True, compute = "_compute_precio_id", readonly=True, store=True)
+    precio = fields.Float(string="Precio", default=0.0, compute="_compute_precio_id", readonly=True, store=True)
     personal_id = fields.Many2one(string='Personal', comodel_name='hr.employee', ondelete='restrict', tracking=True, required=True,
                                   default=lambda self: self.env.user.employee_id.id)
+    personal_permitido_ids = fields.Many2many(
+        'hr.employee',
+        string='Personal permitido',
+        compute='_compute_personal_permitido_ids',
+        readonly=True,
+    )
     reparto_empleado_id = fields.Many2one('res.company', 'Reparto', compute = "_compute_vivienda_id", readonly=True, store=True,)
     reparto_solicitud_empleado = fields.Many2one(
         'res.company',
@@ -42,11 +50,12 @@ class InmuebleAsignado(models.Model):
     )
     sector_id = fields.Many2one(
         'vivienda.sector',
-        'Sector',
-        related='inmueble_id.sector_id',
-        readonly=True,
+        string='Sector',
         store=True,
     )
+    
+    sector_temporal_dominio = fields.Char(compute='_compute_sector_dominio', store=False)
+    sector_permanente_dominio = fields.Char(compute='_compute_sector_dominio', store=False)
     politicas_ids = fields.Many2many(
         'vivienda.catalogo_politicas',
         string='Políticas',
@@ -76,8 +85,13 @@ class InmuebleAsignado(models.Model):
     fecha_baja = fields.Date(string='Fecha de baja' )   
     motivo_baja = fields.Text('Motivo de baja')
     motivo_rechazo = fields.Text('Motivo de anulación')    
-    aceptacion_termino = fields.Boolean(string='aceptación terminos',)  
+    aceptacion_termino = fields.Boolean(string='Aceptación términos',)  
     dependiente_ids = fields.Many2many(string='Dependientes', comodel_name='hr.employee.hijos', relation='vivienda_solicitud_dependientes_rel', column1='solicitud_id', column2='dependiente_id', domain="[('employee_id','=',personal_id)]")
+    requisito_line_ids = fields.One2many(
+        'vivienda.solicitud.requisito',
+        'solicitud_id',
+        string='Requisitos',
+    )
     
     ambiente_ids = fields.One2many(string='Ambientes',  comodel_name='vivienda.detalle_solicitud_ambiente', inverse_name='solicitud_id',)
     ambiente_cliente_ids = fields.One2many(string='Ambientes', comodel_name='vivienda.detalle_solicitud_ambiente', inverse_name='solicitud_id',)
@@ -86,11 +100,12 @@ class InmuebleAsignado(models.Model):
     archivos_adjuntos= fields.Binary( string='Comprobante:')
     observacion = fields.Text('Observación')
     es_encargado = fields.Boolean(string='Es Encargado',help="Bandera usada para saber si el que creo la solicitud es un solicitante o un encargado de solicitudes encargado = true, solicitante=false")
-    band_cobrar = fields.Boolean(string='Cobrado',help="Bandera usada para llevar un control de las solicitudes cobradas true cobradas, false no cobradas")      
+    band_pagado = fields.Boolean(string='Pagado',help="Bandera usada para llevar un control de las solicitudes pagadas true pagadas, false no pagadas")      
     fecha_pago = fields.Datetime('Fecha de pago',  readonly=True)
     fecha_llegada = fields.Datetime('Fecha llegada',  readonly=True)
     fecha_salida = fields.Datetime('Fecha salida',  readonly=True)
     es_archivar = fields.Boolean(string='Archivar',default=False)
+    es_solicitud_permanente = fields.Boolean(string='Es solicitud permanente', default=False)
     inmueble_ambiente_ids = fields.One2many(
         comodel_name='vivienda.ambiente_caracteristica',
         compute='_compute_inmueble_ambiente_ids',
@@ -102,10 +117,40 @@ class InmuebleAsignado(models.Model):
         'message' : ''
          }    
 
-    @api.depends('inmueble_id', 'inmueble_id.politicas_ids')
+    @api.depends('condicion', 'es_solicitud_permanente')
     def _compute_politicas_ids(self):
         for record in self:
-            record.politicas_ids = record.inmueble_id.politicas_ids
+            condicion_efectiva = record._condicion_efectiva()
+            if condicion_efectiva:
+                record.politicas_ids = self.env['vivienda.catalogo_politicas'].search([
+                    ('condicion', 'in', [condicion_efectiva, 'ambos']),
+                    ('active', '=', True),
+                ])
+            else:
+                record.politicas_ids = self.env['vivienda.catalogo_politicas'].browse()
+
+    @api.depends_context('uid')
+    def _compute_personal_permitido_ids(self):
+        user = self.env.user
+        es_privilegiado = user.has_group('vivienda_fiscal.group_vivienda_administrador_general') or \
+            user.has_group('vivienda_fiscal.group_vivienda_administrador') or \
+            user.has_group('vivienda_fiscal.group_vivienda_encargado_solicitud')
+        empleado_usuario = user.employee_id
+
+        for record in self:
+            if es_privilegiado:
+                record.personal_permitido_ids = self.env['hr.employee'].search([])
+            elif empleado_usuario:
+                record.personal_permitido_ids = empleado_usuario
+            else:
+                record.personal_permitido_ids = False
+
+    def _usuario_puede_gestionar_todo_el_personal(self):
+        self.ensure_one()
+        user = self.env.user
+        return user.has_group('vivienda_fiscal.group_vivienda_administrador_general') or \
+            user.has_group('vivienda_fiscal.group_vivienda_administrador') or \
+            user.has_group('vivienda_fiscal.group_vivienda_encargado_solicitud')
 
     @api.depends('inmueble_id')
     def _compute_inmueble_ambiente_ids(self):
@@ -132,6 +177,19 @@ class InmuebleAsignado(models.Model):
         for record in self:
             if record.condicion != 'permanente' and not record.ambiente_operador_ids:
                 raise ValidationError("Por favor seleccione por lo menos un ambiente.")
+
+    @api.constrains('personal_id')
+    def _check_personal_autorizado(self):
+        for record in self:
+            if record._usuario_puede_gestionar_todo_el_personal():
+                continue
+
+            empleado_usuario = self.env.user.employee_id
+            if not empleado_usuario:
+                raise ValidationError('Su usuario no tiene empleado asociado. Contacte al administrador.')
+
+            if record.personal_id != empleado_usuario:
+                raise ValidationError('No tiene permisos para crear solicitudes a nombre de otro empleado.')
 
             
    
@@ -202,6 +260,33 @@ class InmuebleAsignado(models.Model):
                         'context': {'search_default_estado':1,'search_default_sector':1,'search_default_inmueble':1},
                     } 
         return diccionario 
+
+    def ver_asignaciones_temporal(self):
+        result = self.ver_asignaciones()
+        result['name'] = 'Alojamiento Temporal'
+        result['domain'] = list(result.get('domain', [])) + [('condicion', '=', 'temporal')]
+        return result
+
+    def ver_asignaciones_permanente(self):
+        _condicion = []
+        user = self.env.user
+        if user.has_group('vivienda_fiscal.group_vivienda_administrador_general') or \
+                user.has_group('vivienda_fiscal.group_vivienda_administrador'):
+            _condicion = [('es_solicitud_permanente', '=', True), ('es_archivar', '=', False)]
+        elif user.has_group('vivienda_fiscal.group_vivienda_encargado_solicitud'):
+            sectores = self.env['vivienda.sector'].search([('reparto_id', '=', user.company_id.id)])
+            _condicion = [('es_solicitud_permanente', '=', True), ('es_archivar', '=', False), ('sector_id', 'in', sectores.ids)]
+        diccionario= {
+                        'name': ('Asignaciones de inmuebles Permanentes'),        
+                        'domain': _condicion,
+                        'res_model': 'vivienda.inmueble_asignado',
+                        'views': [(self.env.ref('vivienda_fiscal.view_vivienda_registro_asignacion_tree').id, 'list'),(self.env.ref('vivienda_fiscal.view_vivienda_registro_asignacion_form').id, 'form')],
+                        'search_view_id':[self.env.ref('vivienda_fiscal.view_vivienda_registro_asignacion_search').id, 'search'],                           
+                        'view_mode': 'list,form',
+                        'type': 'ir.actions.act_window',
+                        'context': {'search_default_estado':1,'search_default_sector':1,'search_default_inmueble':1},
+                    } 
+        return diccionario 
     
     @api.depends('personal_id')
     def _compute_vivienda_id(self):
@@ -233,9 +318,32 @@ class InmuebleAsignado(models.Model):
                     res = self.env.cr.dictfetchall() 
                     for linea in res:                                   
                         _inmueble.append(linea['inmueble_id'])
-            record.inmueble_id_domain = json.dumps([('id' , 'in' , _inmueble)])       
+            if record.sector_id:
+                _inmueble = self.env['vivienda.inmueble'].search([
+                    ('id', 'in', _inmueble),
+                    ('sector_id', '=', record.sector_id.id),
+                ]).ids
+            record.inmueble_id_domain = json.dumps([('id', 'in', _inmueble)])
 
-    
+    @api.depends()
+    def _compute_sector_dominio(self):
+        sectores_temporal = self.env['vivienda.inmueble'].search(
+            [('condicion', '=', 'temporal')]
+        ).mapped('sector_id').ids
+        sectores_permanente = self.env['vivienda.inmueble'].search(
+            [('condicion', '=', 'permanente')]
+        ).mapped('sector_id').ids
+        for record in self:
+            record.sector_temporal_dominio = json.dumps([('id', 'in', sectores_temporal)])
+            record.sector_permanente_dominio = json.dumps([('id', 'in', sectores_permanente)])
+
+    @api.onchange('sector_id')
+    def _onchange_sector_id(self):
+        for record in self:
+            if record.inmueble_id and record.inmueble_id.sector_id != record.sector_id:
+                record.inmueble_id = False
+            if record.es_solicitud_permanente and not record.inmueble_id:
+                record._sync_requisitos_desde_catalogo(reset=False)
 
     @api.onchange('inmueble_id')
     def _onchange_inmueble_id(self):
@@ -261,6 +369,9 @@ class InmuebleAsignado(models.Model):
                         record.fecha_inicio = fecha_base
                     if not record.fecha_fin:
                         record.fecha_fin = record.fecha_inicio
+                record._sync_requisitos_desde_catalogo(reset=True)
+            else:
+                record._sync_requisitos_desde_catalogo(reset=True)
                      
     def _actualizar_dias_pago(self): 
         registros = self.search([('state','=','asignado')])   
@@ -315,32 +426,105 @@ class InmuebleAsignado(models.Model):
     def _onchange_personal_id(self):
         self.inmueble_id = False  
 
+    def _condicion_efectiva(self):
+        """Retorna la condición efectiva del registro: usa el campo relacionado
+        o 'permanente' si la solicitud fue creada desde la vista permanente."""
+        return self.condicion or ('permanente' if self.es_solicitud_permanente else False)
+
+    def _get_requisitos_catalogo(self):
+        self.ensure_one()
+        condicion = self._condicion_efectiva()
+        if not condicion:
+            return self.env['vivienda.requisito'].browse()
+        return self.env['vivienda.requisito'].search([
+            ('active', '=', True),
+            ('condicion_aplica', 'in', [condicion, 'ambos']),
+        ], order='sequence, id')
+
+    def _sync_requisitos_desde_catalogo(self, reset=False):
+        for record in self:
+            condicion_efectiva = record._condicion_efectiva()
+            # Un registro es "nuevo" si todavía no tiene id real en BD
+            is_new = not record._origin.id
+
+            if condicion_efectiva != 'permanente':
+                if reset or is_new:
+                    record.requisito_line_ids = [(5, 0, 0)]
+                elif record.requisito_line_ids:
+                    record.requisito_line_ids.unlink()
+                continue
+
+            requisitos = record._get_requisitos_catalogo()
+
+            # Para registros nuevos o con reset: siempre reasignar mediante comandos ORM
+            if reset or is_new:
+                record.requisito_line_ids = [(5, 0, 0)] + [
+                    (0, 0, {'requisito_id': req.id}) for req in requisitos
+                ]
+                continue
+
+            # Registro ya guardado, sincronización incremental
+            existentes = {line.requisito_id.id: line for line in record.requisito_line_ids if line.requisito_id}
+            ids_catalogo = set(requisitos.ids)
+            sobrantes = record.requisito_line_ids.filtered(
+                lambda l: not l.requisito_id or l.requisito_id.id not in ids_catalogo
+            )
+            if sobrantes:
+                sobrantes.unlink()
+            nuevos = [
+                (0, 0, {'requisito_id': req.id})
+                for req in requisitos
+                if req.id not in existentes
+            ]
+            if nuevos:
+                record.write({'requisito_line_ids': nuevos})
+
+    def _validar_requisitos_permanente(self):
+        for record in self:
+            if record._condicion_efectiva() != 'permanente':
+                continue
+            faltantes = []
+            for line in record.requisito_line_ids.filtered('obligatorio'):
+                if line.tipo_captura == 'archivo' and not line.archivo:
+                    faltantes.append(line.requisito_id.name)
+                if line.tipo_captura == 'texto' and not line.valor_texto:
+                    faltantes.append(line.requisito_id.name)
+            if faltantes:
+                raise ValidationError(
+                    'Complete los requisitos obligatorios antes de solicitar: %s' % ', '.join(faltantes)
+                )
+
     #accion para vivienda
     def solicitar_inmueble(self):
-        self.action_por_aprobar_asignacion()
+        self._validar_requisitos_permanente()
+        if not self.name or self.name == 'SOLICITUD-DIRVIV-VIF-SIN NUMERO':
+            seq = self.env['ir.sequence'].next_by_code('vf.solicitud.vivienda') or 'SOLICITUD-DIRVIV-VIF-SIN NUMERO'
+            self.write({'name': seq})
+        self.action_revision_solicitud()
 
     #accion para vivienda
-    def action_por_aprobar_asignacion(self):
+    def action_revision_solicitud(self):
         if not self.aceptacion_termino:
             raise ValidationError("Lee las políticas y acepta los términos para continuar")
-
-        self.write({'state': 'por_aprobar'})
+        if self.state not in ('draft', 'devuelto'):
+            raise ValidationError('Solo se puede enviar a revisión desde estado Borrador o Devuelto.')
+        self.write({'state': 'revision'})
         return True
 
     def aprobar_solicitud(self):  
         if self.condicion != 'temporal':
             raise ValidationError('La accion Aprobar aplica solo para inmuebles temporales.')
-        if self.state != 'por_aprobar':
-            raise ValidationError('Solo se puede aprobar una solicitud en estado Por aprobar.')
-        self.band_cobrar = True
+        if self.state != 'revision':
+            raise ValidationError('Solo se puede aprobar una solicitud en estado Revisión.')
+        self.band_pagado = True
         self.action_estado_aprobado()
         
     
     def asignacion_solicitud(self):  
         if self.condicion != 'permanente':
             raise ValidationError('La accion Asignar aplica solo para inmuebles permanentes.')
-        if self.state != 'por_aprobar':
-            raise ValidationError('Solo se puede asignar una solicitud en estado Por aprobar.')
+        if self.state != 'revision':
+            raise ValidationError('Solo se puede asignar una solicitud en estado Revisión.')
         _cantidad = 0
         for ambiente in self.ambiente_ids:
             _cantidad += ambiente.cantidad
@@ -356,13 +540,12 @@ class InmuebleAsignado(models.Model):
     def action_estado_por_aprobar(self):
         if(self.aceptacion_termino):
             self.dias_pago = self.inmueble_id.dias_pago
-            self.write({'state': 'por_aprobar'})
+            self.write({'state': 'aprobado'})
         return True
     
     def action_estado_pagado(self):  
         # self.tipo_habitacion_ids.habitacion_ids.state = 'ocupado'   
-        self.band_cobrar = True   
-        self.write({'state': 'pagado'})
+        self.band_pagado = True   
         return True
 
 
@@ -430,8 +613,43 @@ class InmuebleAsignado(models.Model):
     def action_archivar(self):       
         self.write({'es_archivar': True})
         return True
-    
-    
+
+    def unlink(self):
+        for record in self:
+            if record.state != 'draft':
+                raise ValidationError(
+                    'Solo puede eliminar solicitudes en estado Borrador.'
+                )
+        return super().unlink()
+
+    def action_eliminar(self):
+        self.ensure_one()
+        if self.state != 'draft':
+            raise ValidationError('Solo puede eliminar solicitudes en estado Borrador.')
+        self.unlink()
+        return {'type': 'ir.actions.act_window_close'}
+
+    def action_lista_espera(self):
+        for record in self:
+            if record.state != 'revision':
+                raise ValidationError('Solo se puede pasar a Lista de Espera desde estado Revisión.')
+            record.write({'state': 'lista_espera'})
+        return True
+
+    def action_devolver(self):
+        for record in self:
+            if record.state != 'revision':
+                raise ValidationError('Solo se puede devolver una solicitud en estado Revisión.')
+            record.write({'state': 'devuelto'})
+        return True
+
+    def action_rechazar(self):
+        for record in self:
+            if record.state != 'revision':
+                raise ValidationError('Solo se puede rechazar una solicitud en estado Revisión.')
+            record.write({'state': 'rechazado'})
+        return True
+
     def action_estado_por_anular(self):
         for record in self:
             if record.state not in ['draft', 'por_aprobar']:
@@ -475,8 +693,28 @@ class InmuebleAsignado(models.Model):
                 )
 
     @api.model
-    def create(self, values): 
+    def create(self, values):
+        if 'requisito_line_ids' in values:
+            values['requisito_line_ids'] = [
+                cmd for cmd in values['requisito_line_ids']
+                if not (isinstance(cmd, (list, tuple)) and len(cmd) >= 3
+                        and cmd[0] == 0 and not cmd[2].get('requisito_id'))
+            ]
         result = super().create(values)
+        if result._condicion_efectiva() == 'permanente':
+            result._sync_requisitos_desde_catalogo(reset=False)
+        return result
+
+    def write(self, values):
+        if 'requisito_line_ids' in values:
+            values['requisito_line_ids'] = [
+                cmd for cmd in values['requisito_line_ids']
+                if not (isinstance(cmd, (list, tuple)) and len(cmd) >= 3
+                        and cmd[0] == 0 and not cmd[2].get('requisito_id'))
+            ]
+        result = super().write(values)
+        if 'inmueble_id' in values:
+            self._sync_requisitos_desde_catalogo(reset=False)
         return result
             
 class SolicitudTipoAmbiente(models.Model):
@@ -491,9 +729,9 @@ class SolicitudTipoAmbiente(models.Model):
     inmueble_id = fields.Many2one(string='Inmueble', comodel_name='vivienda.inmueble', related='solicitud_id.inmueble_id', readonly=True, store=True)
     detalle_solicitud_id_domain = fields.Char ( compute = "_compute_detalle_solicitud_id" , readonly = True,)     
     detalle_solicitud_id = fields.Many2one('vivienda.ambiente_caracteristica', string="Ambientes", ondelete='restrict', required=True,                                        
-                                         domain="[('inmueble_id','=',inmueble_id)]", index=True, ) 
-    fecha_inicio = fields.Date(string='Fecha de entrada', related='solicitud_id.fecha_inicio', readonly=True, store=True)
-    fecha_fin = fields.Date(string='Fecha de salida', related='solicitud_id.fecha_fin', readonly=True, store=True ) 
+                                         domain="[('inmueble_id','=',inmueble_id),('ambiente_id.cobro','=',True)]", index=True, ) 
+    fecha_inicio = fields.Date(string='Fecha de entrada', related='solicitud_id.fecha_inicio',  store=True)
+    fecha_fin = fields.Date(string='Fecha de salida', related='solicitud_id.fecha_fin',  store=True ) 
     num_personas = fields.Integer(string='# personas', related='detalle_solicitud_id.num_personas', readonly=True, store=True)      
     precio_diario = fields.Float(string="Precio diario",compute = "_compute_vivienda_id", readonly=True, store=True)
     precio_total = fields.Float(string="Precio total", compute = "_compute_vivienda_id", readonly=True, store=True)    
@@ -519,35 +757,63 @@ class SolicitudTipoAmbiente(models.Model):
         for record in self:    
             if record.cantidad > 2:
              raise ValidationError("Solo pueden agregar hasta 2 tipos de ambientes por persona")
+
+    @api.constrains('ambiente_ids', 'inmueble_id', 'detalle_solicitud_id')
+    def _check_ambientes_existentes_y_validos(self):
+        for record in self:
+            if not record.ambiente_ids:
+                continue
+
+            if any(amb.inmueble_id != record.inmueble_id for amb in record.ambiente_ids):
+                raise ValidationError("Solo puede seleccionar ambientes existentes del inmueble indicado.")
+
+            ambiente_caracteristica = record.detalle_solicitud_id.ambiente_id
+            if ambiente_caracteristica and any(amb.id != ambiente_caracteristica.id for amb in record.ambiente_ids):
+                raise ValidationError("Los ambientes seleccionados deben corresponder al ambiente definido en la línea.")
             
     
    
-    @api.depends('inmueble_id','es_encargado')
+    @api.depends('inmueble_id', 'detalle_solicitud_id', 'es_encargado')
     def _compute_ambiente_id(self):        
         for record in self:
-            record.ambiente_id_domain = json.dumps([('id' , 'in' , [])]) 
-            dominio = [('inmueble_id','=',record.inmueble_id.id),('detalle_solicitud_id','=',record.detalle_solicitud_id.id),('state','=','libre')]            
+            record.ambiente_id_domain = json.dumps([('id', 'in', [])])
+
+            if not record.inmueble_id or not record.detalle_solicitud_id or not record.detalle_solicitud_id.ambiente_id:
+                continue
+
+            dominio = [
+                ('inmueble_id', '=', record.inmueble_id.id),
+                ('id', '=', record.detalle_solicitud_id.ambiente_id.id),
+                ('cobro', '=', True),
+                ('state', '=', 'libre'),
+            ]
             ambientes = self.env['vivienda.ambiente']
             if(record.es_encargado):
-                ambientes = self.env['vivienda.ambiente'].search(dominio)                
-            else:   
+                ambientes = self.env['vivienda.ambiente'].search(dominio)
+            else:
                 numero_ambientes_reservadas = record.inmueble_id.numero_ambiente_reservada
                 numero_ambientes = self.env['vivienda.ambiente'].search_count(dominio)
-                numero_ambientes_disponibles = numero_ambientes - numero_ambientes_reservadas            
+                numero_ambientes_disponibles = numero_ambientes - numero_ambientes_reservadas
                 if(numero_ambientes_disponibles > 0):
-                    ambientes = self.env['vivienda.ambiente'].search(dominio,limit=numero_ambientes_disponibles)
-            record.ambiente_id_domain = json.dumps([('id' , 'in' , ambientes.ids)])
+                    ambientes = self.env['vivienda.ambiente'].search(dominio, limit=numero_ambientes_disponibles)
+
+            record.ambiente_id_domain = json.dumps([('id', 'in', ambientes.ids)])
        
-    @api.depends('inmueble_id')
+    @api.depends('inmueble_id', 'solicitud_id.ambiente_ids.detalle_solicitud_id')
     def _compute_detalle_solicitud_id(self):
-      for record in self:             
-        if(record.inmueble_id):
-            todas_ambientes = self.env['vivienda.ambiente_caracteristica'].search([('inmueble_id','=',record.inmueble_id.id)])         
-            ambientes_ingresadas = record.solicitud_id.ambiente_ids.detalle_solicitud_id 
-            restantes = todas_ambientes - ambientes_ingresadas   
-            record.detalle_solicitud_id_domain = json.dumps([('id' , 'in' , restantes.ids)])
-        else:
-            record.detalle_solicitud_id_domain = json.dumps([('id' , 'in' , [])])
+        for record in self:
+            if record.inmueble_id:
+                todas_ambientes = self.env['vivienda.ambiente_caracteristica'].search([
+                    ('inmueble_id', '=', record.inmueble_id.id),
+                    ('ambiente_id.cobro', '=', True),
+                ])
+                ambientes_ingresadas = record.solicitud_id.ambiente_ids.filtered(
+                    lambda l: l.id != record.id
+                ).mapped('detalle_solicitud_id')
+                restantes = todas_ambientes - ambientes_ingresadas
+                record.detalle_solicitud_id_domain = json.dumps([('id', 'in', restantes.ids)])
+            else:
+                record.detalle_solicitud_id_domain = json.dumps([('id', 'in', [])])
             
     @api.depends('cantidad','detalle_solicitud_id','fecha_inicio','fecha_fin','condicion')
     def _compute_vivienda_id(self):
@@ -575,6 +841,10 @@ class SolicitudTipoAmbiente(models.Model):
                         total = record.cantidad * dias * precio_diario
 
             record.precio_total = total
+
+    @api.onchange('cantidad', 'detalle_solicitud_id', 'fecha_inicio', 'fecha_fin', 'condicion')
+    def _onchange_recalcular_precios(self):
+        self._compute_vivienda_id()
     
             
     

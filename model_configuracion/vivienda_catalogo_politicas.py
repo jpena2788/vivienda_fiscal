@@ -7,9 +7,12 @@ class Piso(models.Model):
     _description = 'Catálogo políticas'
     _inherit = [ 'mail.thread', 'mail.activity.mixin']
 
-    name = fields.Char(string="Nombre política", required=True,tracking=True)
-    descripcion = fields.Text(string='Descripción', tracking=True )  
-    active = fields.Boolean(string='Activo/Inactivo', default='True' )
+    seleccion_condicion = [('permanente', 'Permanente'), ('temporal', 'Temporal'), ('ambos', 'Ambos')]
+
+    name = fields.Char(string="Nombre política", required=True, tracking=True)
+    descripcion = fields.Text(string='Descripción', tracking=True)
+    condicion = fields.Selection(seleccion_condicion, string='Aplica a', default='ambos', required=True)
+    active = fields.Boolean(string='Activo/Inactivo', default='True')
     
     _sql_constraints = [('name_unique', 'UNIQUE(name)', "Nombre de la política debe ser único"),]   
     

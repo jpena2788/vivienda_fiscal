@@ -7,7 +7,7 @@
     <menuitem id="menu_vf_root_rep" name="Reportes" parent="menu_vf_root" groups="vivienda_fiscal.group_vf_reader,vivienda_fiscal.group_vivienda_administrador_general" sequence="10"/>
         
     <!-- Menu Configuración            -->
-    <menuitem id="menu_vf_root_conf" name="Configuración" parent="menu_vf_root" groups="vivienda_fiscal.group_vivienda_administrador,vivienda_fiscal.group_vivienda_administrador_general" sequence="15"/>
+    <menuitem id="menu_vf_root_conf" name="Configuración" parent="menu_vf_root" groups="vivienda_fiscal.group_vf_operator,vivienda_fiscal.group_vivienda_encargado_solicitud,vivienda_fiscal.group_vivienda_administrador,vivienda_fiscal.group_vivienda_administrador_general" sequence="15"/>
    
    
     <!-- <menuitem id="menu_vf_asignaciones"

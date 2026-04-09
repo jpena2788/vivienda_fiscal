@@ -14,6 +14,7 @@ class Sector(models.Model):
     _description = 'Sector'
 
     name = fields.Char(string='Sector', required=True)
+    reparto_id = fields.Many2one('res.company', string='Reparto', ondelete='restrict')
     active = fields.Boolean(string='Activo', default=True)
 
 class Inmueble(models.Model):

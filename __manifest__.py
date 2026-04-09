@@ -27,6 +27,7 @@
         'views/configuracion/vivienda_tipo_inmueble_view.xml',
         'views/configuracion/vivienda_hora_ingreso_salida_view.xml',
         'views/configuracion/vivienda_tipo_ambiente_view.xml',
+        'views/configuracion/vivienda_requisito_view.xml',
 
         #reportes
         'views/reportes/reporte_historial_vivienda_template.xml',
@@ -49,8 +50,8 @@
 
         #solicitud
         # 'views/solicitud/vivienda_solicitud_asignacion_view.xml',
-        'views/solicitud/vivienda_mis_solicitudes_view.xml',
-        
+        'views/solicitud/vivienda_mis_solicitudes_permanente_view.xml',
+        'views/solicitud/vivienda_mis_solicitudes_temporal_view.xml',
         #'views/alojamiento_views.xml',
         # 'views/asignacion_vivienda_views.xml',
         # 'views/entorno_views.xml',

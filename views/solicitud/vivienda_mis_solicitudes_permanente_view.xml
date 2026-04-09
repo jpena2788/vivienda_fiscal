@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-        <record model="ir.ui.view" id="view_vivienda_registro_asignacion_tree">
+        <record model="ir.ui.view" id="view_vivienda_mis_solicitud_permanente_tree">
             <field name="name">vivienda.inmueble_asignado</field>
             <field name="model">vivienda.inmueble_asignado</field>
             <field name="arch" type="xml">
@@ -10,6 +10,7 @@
                     <field name="reparto_solicitud_empleado" />
                     <field name="personal_id" />
                     <field name="reparto_id" />
+                    <field name="sector_id" />
                     <field name="inmueble_id" />
                     <field name="state" widget="badge" decoration-bf="state == 'draft'" decoration-primary="state == 'revision'" decoration-success="state == 'asignado'"  decoration-warning="state == 'lista_espera'" decoration-danger="state == 'anular'"/>
                     <button name="action_estado_por_anular" string="Anular" type="object" icon="fa-ban" class="btn-danger" invisible="state not in ['draft','revision']"/>
@@ -17,18 +18,15 @@
                 </list>
             </field>
         </record>
-        <record id="view_vivienda_registro_asignacion_form" model="ir.ui.view">
+        <record id="view_vivienda_mis_solicitud_permanente_form" model="ir.ui.view">
             <field name="name">vivienda.inmueble_asignado</field>
             <field name="model">vivienda.inmueble_asignado</field>
             <field name="arch" type="xml">
                 <form string="NUEVO" duplicate="0">
                     <header>
-                        <field name="state" widget="statusbar" statusbar_visible="draft,anular,revision,devuelto,rechazado,lista_espera,asignado,baja" invisible="condicion != 'temporal'"/>
-                        <button name="action_estado_por_anular" string="Anular" type="object" icon="fa-ban" class="btn-secondary" invisible="state in ['draft']"/>
-                        <button name="action_lista_espera" string="Lista de Espera" type="object" icon="fa-clock-o" class="oe_highlight" invisible="state != 'revision'" confirm="¿Confirma que la solicitud es correcta y pasa a Lista de Espera?"/>
-                        <button name="action_devolver" string="Devolver" type="object" icon="fa-undo" class="btn-warning" invisible="state != 'revision'" confirm="¿Está seguro de que desea devolver esta solicitud?"/>
-                        <button name="action_rechazar" string="Rechazar" type="object" icon="fa-times" class="btn-danger" invisible="state != 'revision'" confirm="¿Está seguro de que desea rechazar esta solicitud?"/>
-                        <button name="solicitar_inmueble" invisible="state != 'draft'" string="Solicitar" type="object" icon="fa-check" class="oe_highlight"/>
+                        <field name="state" widget="statusbar" statusbar_visible="draft,anular,revision,devuelto,rechazado,lista_espera,asignado,baja" invisible="not es_solicitud_permanente"/>
+                        <button name="action_estado_por_anular" string="Anular" type="object" icon="fa-ban" class="btn-secondary" invisible="state != 'draft'"/>
+                        <button name="solicitar_inmueble" invisible="state not in ['draft', 'devuelto']" string="Solicitar" type="object" icon="fa-check" class="oe_highlight"/>
                         <button name="action_eliminar" invisible="state != 'draft'" string="Eliminar" type="object" icon="fa-trash" class="btn-danger" confirm="¿Está seguro de que desea eliminar esta solicitud? Esta acción no se puede deshacer."/>
                     </header>
                     <sheet>
@@ -43,28 +41,30 @@
                             <group string="Datos de la Solicitud">
                                 <field name="personal_id"
                                            style="color:black; font-weight: bold;font-size: x-large"
-                                           domain="[('id', 'in', personal_permitido_ids)]"
+                                           domain="[('user_id', '=', uid)]"
                                            options="{'no_create': True, 'no_open': True, 'no_create_edit': True}"
                                            readonly="state != 'draft'"/>
                                 <field name="personal_permitido_ids" invisible="1"/>
-                                <field name="reparto_solicitud_empleado" readonly="1" force_save="1"/>
                                 <field name="user_id"
                                            options="{'no_create': True, 'no_open': True, 'no_create_edit': True}"
                                            force_save="1" invisible="1"/>
+                                <field name="inmueble_id_domain" invisible="1"/>
+                                <field name="sector_permanente_dominio" invisible="1"/>
                                 <field name="sector_id"
                                            string="Sector"
                                            domain="sector_permanente_dominio"
                                            options="{'no_create': True, 'no_open': True, 'no_create_edit': True}"
                                            readonly="state != 'draft'" required="1" force_save="1"/>
-                                <field name="inmueble_id_domain" invisible="1"/>
-                                <field name="inmueble_id"
+                                <field name="inmueble_id" 
+                                           group="vivienda_fiscal.group_vivienda_encargado_solicitud" 
+                                           domain="[('condicion', '=', 'permanente')] + ([('sector_id', '=', sector_id)] if sector_id else [])"
                                            options="{'no_create': True, 'no_open': True, 'no_create_edit': True}"
-                                           readonly="state != 'draft'"
                                            invisible="state in ['draft', 'revision']"/>
                                 <field name="reparto_id" readonly="1" force_save="1"/>
                                 <field name="condicion" invisible="1"/>
-                                <field name="fecha_alta"/>
-                                <field name="fecha_baja"/>
+                                <field name="aceptacion_termino" readonly="state != 'draft'"/>
+                                <field name="fecha_alta" invisible="state == 'draft'" readonly="1"/>
+                                <field name="fecha_baja" invisible="state == 'draft'" readonly="1"/>
                             </group>
                             <!-- DERECHA: ambientes del inmueble -->
                             <group string="Ambientes disponibles del inmueble" invisible="not inmueble_id">
@@ -91,27 +91,21 @@
                                     </strong>
                                 </group>
                             </strong>
-                            <strong colspan="2">
-                                <group string="Registro de Baja" invisible="state != 'baja'">
-                                    <field name="fecha_baja" readonly="1"/>
-                                    <field name="motivo_baja" readonly="1"/>
-                                </group>
-                            </strong>
                         </group>
                         <notebook>
                             <page string="Requisitos">
                                 <group>
-                                    <field name="requisito_line_ids" nolabel="1">
+                                    <field name="requisito_line_ids" nolabel="1" readonly="state not in ['draft', 'devuelto']">
                                         <list editable="bottom" create="0" delete="0">
                                             <field name="sequence" widget="handle"/>
                                             <field name="requisito_id" readonly="1"/>
                                             <field name="tipo_captura" readonly="1" optional="hide"/>
                                             <field name="obligatorio" readonly="1" optional="hide"/>
-                                            <field name="valor_texto" readonly="1" invisible="tipo_captura != 'texto'"/>
-                                            <field name="archivo" filename="archivo_nombre" readonly="1" invisible="tipo_captura != 'archivo'"/>
+                                            <field name="valor_texto" invisible="tipo_captura != 'texto'" readonly="state != 'devuelto'"/>
+                                            <field name="archivo" filename="archivo_nombre" invisible="tipo_captura != 'archivo'" readonly="state != 'devuelto'"/>
                                             <field name="archivo_nombre" invisible="1"/>
-                                            <field name="aprobado" widget="boolean_toggle"/>
-                                            <field name="observacion_revision"/>
+                                            <field name="aprobado" readonly="1" widget="boolean_toggle" optional="show"/>
+                                            <field name="observacion_revision" readonly="1" optional="show"/>
                                         </list>
                                     </field>
                                 </group>
@@ -119,7 +113,7 @@
                             <!-- POLÍTICAS -->
                             <page string="Políticas">
                                 <group string="Políticas">
-                                    
+                                    <field name="politicas_ids" widget="many2many_tags"/>
                                 </group>
                             </page>
                             <page string="Dependientes">
@@ -171,67 +165,35 @@
                 </form>
             </field>
         </record>
-        <record id="view_vivienda_registro_asignacion_search" model="ir.ui.view">
+        <record id="view_vivienda_mis_solicitud_permanente_search" model="ir.ui.view">
             <field name="name">vivienda.inmueble_asignado</field>
             <field name="model">vivienda.inmueble_asignado</field>
             <field name="arch" type="xml">
                 <search string="">
                     <field name="personal_id" />
                     <field name="cedula_identidad" />
+                    <field name="sector_id" string="Sector"/>
                     <field name="inmueble_id" />
-                    <field name="fecha_inicio" />
-                    <field name="fecha_fin" />
-                    <field name="hora_entrada" />
-                    <field name="hora_salida" />
-                    <field name="sector_id" />
+                    <field name="fecha_alta" />
+                    <field name="fecha_baja" />
                     <field name="state" />
-                    <!-- <field name="fecha_aprobacion"/> -->
-                    <field name="fecha_llegada"/>
-                    <field name="fecha_salida"/>
                     <group>
-                        <filter name="estado" string="Estado" context="{'group_by': 'state'}" />
                         <filter name="sector" string="Sector" context="{'group_by': 'sector_id'}" />
-                        <filter name="inmueble" string="Inmueble" context="{'group_by': 'inmueble_id'}" />
+                        <filter name="estado" string="Estado" context="{'group_by': 'state'}" />
                     </group>
                 </search>
             </field>
         </record>
-        <!-- <record model="ir.actions.act_window" id="action_vivienda_solicitud">
-            <field name="name">SOLICITUD DE ASIGNACIÓN DE VIVIENDA</field>
-            <field name="res_model">vivienda.inmueble_asignado</field>
-            <field name="view_mode">list,form</field>
-        </record> -->
-        <!-- <record id="action_vivienda_registro_asignacion_server" model="ir.actions.server">
-            <field name="name">ASIGNACIÓN DE VIVIENDA PERMANENTE</field>
-            <field name="model_id" ref="model_vivienda_inmueble_asignado" />
-            <field name="binding_model_id" ref="model_vivienda_inmueble_asignado" />
-            <field name="state">code</field>
-            <field name="code">action = env['vivienda.inmueble_asignado'].ver_asignaciones_permanente()</field>
-        </record> -->
-        <!-- <record id="action_vivienda_registro_asignacion_temporal_server" model="ir.actions.server">
-            <field name="name">ALOJAMIENTO TEMPORAL</field>
-            <field name="model_id" ref="model_vivienda_inmueble_asignado" />
-            <field name="state">code</field>
-            <field name="code">action = env['vivienda.inmueble_asignado'].ver_asignaciones_temporal()</field>
-        </record> -->
-        <record model="ir.actions.act_window" id="action_registro_asignacion_permanente">
+        <record model="ir.actions.act_window" id="action_vivienda_mis_solicitud_permanente">
             <field name="name">SOLICITUD DE VIVIENDA PERMANENTE</field>
             <field name="res_model">vivienda.inmueble_asignado</field>
             <field name="view_ids" eval="[(5, 0, 0),
                 (0, 0, {'view_mode': 'list', 'view_id': ref('vivienda_fiscal.view_vivienda_mis_solicitud_permanente_tree')}),
                 (0, 0, {'view_mode': 'form', 'view_id': ref('vivienda_fiscal.view_vivienda_mis_solicitud_permanente_form')}),]" />
             <field name="search_view_id" ref="vivienda_fiscal.view_vivienda_mis_solicitud_permanente_search"/>
-            <field name="domain">[('user_id','=', context.get('uid')),('es_archivar','=', False),('condicion','=','permanente')]</field>
-            <field name="context" eval="{'search_default_inmueble':1, 'search_default_estado':1}"></field>
+            <field name="domain">[('user_id','=', context.get('uid')),('es_archivar','=', False),('es_solicitud_permanente','=',True)]</field>
+            <field name="context" eval="{'default_es_solicitud_permanente': True}"></field>
         </record>
-        <record id="action_vivienda_registro_asignacion_permanente_server" model="ir.actions.server">
-            <field name="name">ASIGNACIÓN VIVIENDA PERMANENTE</field>
-            <field name="model_id" ref="model_vivienda_inmueble_asignado" />
-            <field name="state">code</field>
-            <field name="code">action = env['vivienda.inmueble_asignado'].ver_asignaciones_permanente()</field>
-        </record>
-        <!-- <menuitem name="Asignación de Viviendas" id="menu_action_vivienda_registro_asignacion" action="action_vivienda_registro_asignacion_server" parent="vivienda_fiscal.menu_vf_root_reg" groups="vivienda_fiscal.group_vf_operator,vivienda_fiscal.group_vivienda_encargado_solicitud,vivienda_fiscal.group_vivienda_administrador,vivienda_fiscal.group_vivienda_administrador_general" sequence="6" /> -->
-        <!-- <menuitem name="Registro Alojamiento Temporal" id="menu_action_vivienda_registro_temporal" action="action_vivienda_registro_asignacion_temporal_server" parent="vivienda_fiscal.menu_vf_root_reg" groups="vivienda_fiscal.group_vf_operator,vivienda_fiscal.group_vivienda_encargado_solicitud,vivienda_fiscal.group_vivienda_administrador,vivienda_fiscal.group_vivienda_administrador_general" sequence="7" /> -->
-        <menuitem name="Registro Vivienda Permanente" id="menu_action_vivienda_registro_permanente" action="action_vivienda_registro_asignacion_permanente_server" parent="vivienda_fiscal.menu_vf_root_reg" groups="vivienda_fiscal.group_vf_operator,vivienda_fiscal.group_vivienda_encargado_solicitud,vivienda_fiscal.group_vivienda_administrador,vivienda_fiscal.group_vivienda_administrador_general" sequence="8" />
+        <menuitem name="Solicitud de Vivienda Permanente" id="menu_action_vivienda_mis_solicitud_permanente" parent="vivienda_fiscal.menu_vf_root_sol" action="action_vivienda_mis_solicitud_permanente" sequence="3" />
     </data>
 </odoo>

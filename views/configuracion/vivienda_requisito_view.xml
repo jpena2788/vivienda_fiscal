@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_vivienda_requisito_tree">
+            <field name="name">vivienda.requisito</field>
+            <field name="model">vivienda.requisito</field>
+            <field name="arch" type="xml">
+                <list>
+                    <field name="sequence" widget="handle"/>
+                    <field name="name"/>
+                    <field name="tipo_captura"/>
+                    <field name="condicion_aplica"/>
+                    <field name="obligatorio"/>
+                    <field name="active"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="view_vivienda_requisito_form" model="ir.ui.view">
+            <field name="name">vivienda.requisito</field>
+            <field name="model">vivienda.requisito</field>
+            <field name="arch" type="xml">
+                <form string="Requisito" duplicate="0">
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="name"/>
+                                <field name="tipo_captura"/>
+                                <field name="condicion_aplica"/>
+                            </group>
+                            <group>
+                                <field name="sequence"/>
+                                <field name="obligatorio"/>
+                                <field name="active" widget="boolean_toggle"/>
+                            </group>
+                        </group>
+                        <group>
+                            <field name="descripcion"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_vivienda_requisito_search" model="ir.ui.view">
+            <field name="name">vivienda.requisito</field>
+            <field name="model">vivienda.requisito</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/>
+                    <field name="tipo_captura"/>
+                    <field name="condicion_aplica"/>
+                    <filter name="filter_inactive" string="Inactivo" domain="[('active', '=', False)]"/>
+                </search>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="action_vivienda_requisito">
+            <field name="name">REQUISITOS DE VIVIENDA</field>
+            <field name="res_model">vivienda.requisito</field>
+            <field name="view_mode">list,form</field>
+            <field name="search_view_id" ref="vivienda_fiscal.view_vivienda_requisito_search"/>
+        </record>
+
+        <menuitem id="menu_action_vivienda_requisito"
+                  name="Requisitos de Vivienda"
+                  parent="vivienda_fiscal.menu_vf_root_conf"
+                  action="action_vivienda_requisito"
+                  sequence="8"
+                  groups="vivienda_fiscal.group_vf_operator,vivienda_fiscal.group_vivienda_administrador,vivienda_fiscal.group_vivienda_administrador_general"/>
+    </data>
+</odoo>

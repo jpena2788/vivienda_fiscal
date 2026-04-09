@@ -5,7 +5,7 @@
             <field name="name">vivienda.hora_entrada_salida</field>
             <field name="model">vivienda.hora_entrada_salida</field>
             <field name="arch" type="xml">
-                <list create="0">
+                <list>
                     <field name="hora_entrada" widget='float_time'/>
                     <field name="hora_salida" widget='float_time'/>
                 </list>
@@ -16,7 +16,7 @@
             <field name="name">vivienda.hora_entrada_salida</field>
             <field name="model">vivienda.hora_entrada_salida</field>
             <field name="arch" type="xml">
-                <form string="NUEVO" duplicate="0" create="0">
+                <form string="NUEVO" duplicate="0">
                     <sheet>
                         <group>
                             <group >                              
